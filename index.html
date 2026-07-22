@@ -24,9 +24,11 @@
           <div class="menu-wrap">
             <button class="btn btn-ghost-light" id="btnMenu" aria-label="Menu de dados">⋯ Dados</button>
             <div class="menu" id="dataMenu">
-              <button id="btnExport">⬇️ Exportar (JSON)</button>
-              <button id="btnImport">⬆️ Importar (JSON)</button>
-              <button id="btnCSV">📄 Exportar CSV</button>
+              <button id="btnImport">⬆️ Importar planilha (CSV / JSON)</button>
+              <button id="btnTemplate">📄 Baixar modelo de planilha</button>
+              <hr />
+              <button id="btnCSV">📊 Exportar planilha (CSV)</button>
+              <button id="btnExport">⬇️ Exportar backup (JSON)</button>
               <hr />
               <button id="btnTheme">🌓 Alternar tema</button>
               <hr />
@@ -53,9 +55,18 @@
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <input type="text" id="searchInput" placeholder="Buscar por escola, decisor, bairro…" />
         </div>
+        <select class="filter" id="filterEstado"><option value="">Todos os estados</option></select>
         <select class="filter" id="filterCidade"><option value="">Todas as cidades</option></select>
+        <select class="filter" id="filterMedio">
+          <option value="">Ensino médio (todos)</option>
+          <option value="sim">Com ensino médio</option>
+          <option value="nao">Sem ensino médio</option>
+        </select>
         <select class="filter" id="filterEtapa"><option value="">Todas as etapas</option></select>
         <select class="filter" id="filterInovacao"><option value="">Toda inovação</option></select>
+        <label class="chk-prio" title="Mantém as escolas do Ceará sempre no topo da lista">
+          <input type="checkbox" id="prioCE" checked /> 🦅 Ceará primeiro
+        </label>
       </div>
 
       <div class="table-wrap">
@@ -67,6 +78,7 @@
               <th data-sort="decisor_nome">Decisor <span class="arrow">↕</span></th>
               <th class="no-sort">Contatos</th>
               <th data-sort="alunos">Alunos <span class="arrow">↕</span></th>
+              <th data-sort="ensino_medio">Médio <span class="arrow">↕</span></th>
               <th data-sort="score">Score <span class="arrow">↕</span></th>
               <th data-sort="etapa">Etapa <span class="arrow">↕</span></th>
               <th class="no-sort"></th>
@@ -87,8 +99,11 @@
   <div class="overlay" id="overlay"></div>
   <aside class="drawer" id="drawer"></aside>
 
+  <!-- Modal (importação) -->
+  <div class="modal-card" id="modal"></div>
+
   <div class="toast" id="toast"></div>
-  <input type="file" id="fileInput" accept="application/json" style="display:none" />
+  <input type="file" id="fileInput" accept=".csv,.json,text/csv,application/json" style="display:none" />
 
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>

@@ -8,17 +8,72 @@
 const STORAGE_KEY = 'falatio_escolas_v1';
 const THEME_KEY = 'falatio_theme';
 
-/* Definição das etapas do funil de prospecção */
+/* Definição das etapas do funil de prospecção (fluxo completo coordenação → direção → contrato) */
 const ETAPAS = [
-  { id: 'novo',        label: 'Contato pendente',        color: 'var(--st-novo)',        hex: '#94A3B8' },
-  { id: 'contato',     label: 'Tentativa de contato',    color: 'var(--st-contato)',     hex: '#3B82F6' },
-  { id: 'decisor',     label: 'Falei com o decisor',     color: 'var(--st-decisor)',     hex: '#8B5CF6' },
-  { id: 'reuniao',     label: 'Reunião agendada',        color: 'var(--st-reuniao)',     hex: '#F59E0B' },
-  { id: 'coordenacao', label: 'Reunião c/ coordenação',  color: 'var(--st-coordenacao)', hex: '#14B8A6' },
-  { id: 'fechado',     label: 'Fechado ✓',               color: 'var(--st-fechado)',     hex: '#10B981' },
-  { id: 'perdido',     label: 'Sem interesse',           color: 'var(--st-perdido)',     hex: '#EF4444' },
+  { id: 'identificada',            label: 'Escola identificada',              hex: '#94A3B8' },
+  { id: 'primeiro_contato',        label: 'Primeiro contato',                 hex: '#38BDF8' },
+  { id: 'contato_coord',           label: 'Contato com a coordenação',        hex: '#3B82F6' },
+  { id: 'reuniao_coord_agendada',  label: 'Reunião c/ coordenação agendada',  hex: '#6366F1' },
+  { id: 'reuniao_coord_realizada', label: 'Reunião c/ coordenação realizada', hex: '#4F46E5' },
+  { id: 'encaminhado_direcao',     label: 'Encaminhado para a direção',       hex: '#8B5CF6' },
+  { id: 'contato_direcao',         label: 'Contato com a direção',            hex: '#A855F7' },
+  { id: 'reuniao_direcao_agendada',label: 'Reunião c/ direção agendada',      hex: '#C026D3' },
+  { id: 'reuniao_direcao_realizada',label:'Reunião c/ direção realizada',     hex: '#DB2777' },
+  { id: 'contrato_enviado',        label: 'Contrato enviado',                 hex: '#F59E0B' },
+  { id: 'contrato_analise',        label: 'Contrato em análise',              hex: '#F97316' },
+  { id: 'contrato_assinado',       label: 'Contrato assinado',                hex: '#10B981' },
+  { id: 'projeto_piloto',          label: 'Projeto piloto',                   hex: '#059669' },
 ];
+const ETAPA_INICIAL = ETAPAS[0].id;
 const etapaById = id => ETAPAS.find(e => e.id === id) || ETAPAS[0];
+
+/* Campos exportados/importados e seus rótulos amigáveis */
+const CAMPOS = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola', 'site',
+  'alunos', 'ensino_medio', 'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'inovacao',
+  'score', 'nota_enem', 'etapa', 'observacoes', 'notas'];
+const CAMPO_LABEL = {
+  nome: 'Escola', cidade: 'Cidade', estado: 'UF', bairro: 'Bairro', endereco: 'Endereço',
+  telefone_escola: 'Tel. escola', site: 'Site', alunos: 'Alunos', ensino_medio: 'Ensino médio',
+  decisor_nome: 'Decisor', decisor_cargo: 'Cargo', decisor_telefone: 'Tel. direto',
+  inovacao: 'Inovação', score: 'Score', nota_enem: 'Nota ENEM', etapa: 'Etapa',
+  observacoes: 'Observações', notas: 'Notas',
+};
+
+/* Nomes de coluna aceitos na importação (o sistema reconhece variações comuns de planilha) */
+const HEADER_ALIASES = {
+  nome: ['nome', 'escola', 'nome da escola', 'colegio', 'instituicao', 'nome_escola', 'razao social'],
+  cidade: ['cidade', 'municipio'],
+  estado: ['estado', 'uf'],
+  bairro: ['bairro'],
+  endereco: ['endereco', 'logradouro', 'rua', 'endereco completo'],
+  telefone_escola: ['telefone', 'telefone da escola', 'telefone_escola', 'fone', 'contato', 'contato_escola', 'telefone principal', 'telefone geral'],
+  site: ['site', 'website', 'url', 'pagina'],
+  alunos: ['alunos', 'num_alunos', 'numero de alunos', 'n alunos', 'no alunos', 'n de alunos', 'qtd alunos', 'qtde alunos', 'quantidade de alunos', 'total de alunos', 'matriculas'],
+  ensino_medio: ['ensino medio', 'ensino_medio', 'tem ensino medio', 'possui ensino medio', 'medio', 'em'],
+  decisor_nome: ['decisor', 'decisor_nome', 'nome do decisor', 'responsavel', 'diretor', 'gestor', 'contato nome', 'nome contato', 'nome do responsavel'],
+  decisor_cargo: ['cargo', 'decisor_cargo', 'funcao', 'cargo do decisor', 'cargo contato'],
+  decisor_telefone: ['telefone direto', 'decisor_telefone', 'celular', 'whatsapp', 'wpp', 'telefone do decisor', 'contato direto', 'telefone_decisor', 'telefone responsavel'],
+  inovacao: ['inovacao', 'perfil de inovacao', 'perfil_inovacao', 'perfil inovacao'],
+  score: ['score', 'pontuacao', 'prioridade', 'score_prioridade', 'nota prioridade'],
+  nota_enem: ['nota enem', 'nota_enem', 'enem', 'media enem'],
+  etapa: ['etapa', 'status', 'funil', 'fase', 'estagio', 'etapa do funil'],
+  observacoes: ['observacoes', 'obs', 'observacao', 'notas gerais', 'comentarios'],
+  notas: ['notas', 'historico', 'anotacoes', 'notas prospeccao', 'notas da prospeccao'],
+};
+
+/* Normaliza um cabeçalho: sem acento, minúsculo, espaços colapsados */
+function normHeader(s) {
+  return String(s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+/* Lookup: cabeçalho normalizado -> campo canônico */
+const HEADER_LOOKUP = {};
+for (const [campo, aliases] of Object.entries(HEADER_ALIASES)) {
+  aliases.forEach(a => { HEADER_LOOKUP[normHeader(a)] = campo; });
+}
+/* Lookup de etapa: aceita o id OU o rótulo escrito na planilha */
+const ETAPA_LOOKUP = {};
+ETAPAS.forEach(e => { ETAPA_LOOKUP[e.id] = e.id; ETAPA_LOOKUP[normHeader(e.label)] = e.id; });
 
 /* ---------- Estado ---------- */
 let escolas = [];
@@ -29,9 +84,23 @@ let sortDir = -1; // -1 desc, 1 asc
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { escolas = JSON.parse(raw); return; }
+    if (raw) { escolas = JSON.parse(raw); migrateEtapas(); return; }
   } catch (e) { console.warn('Falha ao ler dados salvos', e); }
   escolas = JSON.parse(JSON.stringify(SEED_ESCOLAS));
+  migrateEtapas();
+}
+/* Garante que toda escola tenha uma etapa válida do fluxo atual.
+   Mapeia etapas de versões antigas do funil para a etapa inicial. */
+function migrateEtapas() {
+  const validos = new Set(ETAPAS.map(e => e.id));
+  const legado = {
+    novo: 'identificada', contato: 'primeiro_contato', decisor: 'contato_coord',
+    reuniao: 'reuniao_coord_agendada', coordenacao: 'reuniao_coord_realizada',
+    fechado: 'contrato_assinado', perdido: 'identificada',
+  };
+  escolas.forEach(e => {
+    if (!validos.has(e.etapa)) e.etapa = legado[e.etapa] || ETAPA_INICIAL;
+  });
 }
 function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(escolas)); }
@@ -73,7 +142,9 @@ function nextId() {
 function activeFilters() {
   return {
     q: $('#searchInput').value.trim().toLowerCase(),
+    estado: $('#filterEstado').value,
     cidade: $('#filterCidade').value,
+    medio: $('#filterMedio').value,
     etapa: $('#filterEtapa').value,
     inovacao: $('#filterInovacao').value,
   };
@@ -81,7 +152,10 @@ function activeFilters() {
 function applyFilters(list) {
   const f = activeFilters();
   return list.filter(e => {
+    if (f.estado && e.estado !== f.estado) return false;
     if (f.cidade && e.cidade !== f.cidade) return false;
+    if (f.medio === 'sim' && !e.ensino_medio) return false;
+    if (f.medio === 'nao' && e.ensino_medio) return false;
     if (f.etapa && e.etapa !== f.etapa) return false;
     if (f.inovacao && e.inovacao !== f.inovacao) return false;
     if (f.q) {
@@ -96,12 +170,15 @@ function applyFilters(list) {
 /* ---------- Stats ---------- */
 function renderStats() {
   const total = escolas.length;
-  const ativos = escolas.filter(e => !['novo', 'perdido', 'fechado'].includes(e.etapa)).length;
-  const reunioes = escolas.filter(e => ['reuniao', 'coordenacao'].includes(e.etapa)).length;
-  const fechados = escolas.filter(e => e.etapa === 'fechado').length;
+  const emAndamento = escolas.filter(e =>
+    e.etapa !== ETAPA_INICIAL && !['contrato_assinado', 'projeto_piloto'].includes(e.etapa)).length;
+  const reunioes = escolas.filter(e => [
+    'reuniao_coord_agendada', 'reuniao_coord_realizada',
+    'reuniao_direcao_agendada', 'reuniao_direcao_realizada'].includes(e.etapa)).length;
+  const fechados = escolas.filter(e => ['contrato_assinado', 'projeto_piloto'].includes(e.etapa)).length;
   const stats = [
     { num: total, lbl: 'Escolas' },
-    { num: ativos, lbl: 'Em negociação' },
+    { num: emAndamento, lbl: 'Em andamento' },
     { num: reunioes, lbl: 'Reuniões' },
     { num: fechados, lbl: 'Fechados' },
   ];
@@ -111,17 +188,29 @@ function renderStats() {
 
 /* ---------- Popular selects de filtro ---------- */
 function populateFilters() {
-  const cidades = [...new Set(escolas.map(e => e.cidade).filter(Boolean))].sort();
+  const ufSel = $('#filterEstado'), cSel = $('#filterCidade'),
+        eSel = $('#filterEtapa'), iSel = $('#filterInovacao');
+  const keepUF = ufSel.value, keepC = cSel.value, keepE = eSel.value, keepI = iSel.value;
+
+  const estados = [...new Set(escolas.map(e => e.estado).filter(Boolean))].sort();
+  // Cidades acompanham o estado selecionado (se houver)
+  const cidades = [...new Set(escolas
+    .filter(e => !keepUF || e.estado === keepUF)
+    .map(e => e.cidade).filter(Boolean))].sort();
   const inov = [...new Set(escolas.map(e => e.inovacao).filter(Boolean))];
-  const cSel = $('#filterCidade'), eSel = $('#filterEtapa'), iSel = $('#filterInovacao');
-  const keepC = cSel.value, keepE = eSel.value, keepI = iSel.value;
+
+  ufSel.innerHTML = '<option value="">Todos os estados</option>' +
+    estados.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
   cSel.innerHTML = '<option value="">Todas as cidades</option>' +
     cidades.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
   eSel.innerHTML = '<option value="">Todas as etapas</option>' +
     ETAPAS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
   iSel.innerHTML = '<option value="">Toda inovação</option>' +
     inov.map(i => `<option value="${esc(i)}">${esc(i)}</option>`).join('');
-  cSel.value = keepC; eSel.value = keepE; iSel.value = keepI;
+
+  ufSel.value = keepUF; eSel.value = keepE; iSel.value = keepI;
+  // Mantém a cidade só se ainda existir na lista filtrada pelo estado
+  cSel.value = cidades.includes(keepC) ? keepC : '';
 }
 
 /* ---------- Render: Tabela ---------- */
@@ -154,7 +243,13 @@ function etapaSelect(e) {
 
 function renderTable() {
   const filtered = applyFilters(escolas);
+  const prioCE = $('#prioCE') && $('#prioCE').checked;
   filtered.sort((a, b) => {
+    // Ceará sempre no topo quando a opção está ligada
+    if (prioCE) {
+      const ca = a.estado === 'CE' ? 0 : 1, cb = b.estado === 'CE' ? 0 : 1;
+      if (ca !== cb) return ca - cb;
+    }
     let va = a[sortKey], vb = b[sortKey];
     if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb || '').toLowerCase(); }
     va = va ?? ''; vb = vb ?? '';
@@ -165,26 +260,29 @@ function renderTable() {
 
   const body = $('#tableBody');
   if (!filtered.length) {
-    body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+    body.innerHTML = `<tr><td colspan="9"><div class="empty-state">
       <div class="big">🔍</div>Nenhuma escola encontrada com esses filtros.</div></td></tr>`;
     updateSortHeaders();
     return;
   }
 
   body.innerHTML = filtered.map(e => {
-    const local = [e.bairro, e.cidade].filter(Boolean).join(' · ') || esc(e.cidade) || '—';
     return `<tr data-id="${e.id}">
       <td>
         <div class="school-name" data-open="${e.id}">${esc(e.nome)}</div>
         ${e.observacoes ? `<div class="school-sub">${esc(e.observacoes.slice(0, 60))}${e.observacoes.length > 60 ? '…' : ''}</div>` : ''}
       </td>
-      <td><span class="muted">${esc(local)}</span></td>
+      <td>
+        <div>${esc(e.cidade || '—')}${e.estado ? `<span class="uf-chip">${esc(e.estado)}</span>` : ''}</div>
+        ${e.bairro ? `<div class="school-sub">${esc(e.bairro)}</div>` : ''}
+      </td>
       <td>
         ${e.decisor_nome ? `<div class="decisor-name">${esc(e.decisor_nome)}</div>
           <div class="decisor-cargo">${esc(e.decisor_cargo || '')}</div>` : '<span class="muted">—</span>'}
       </td>
       <td>${contactCell(e)}</td>
       <td>${e.alunos ? Number(e.alunos).toLocaleString('pt-BR') : '<span class="muted">—</span>'}</td>
+      <td>${e.ensino_medio ? '<span class="ym-badge yes">Sim</span>' : '<span class="ym-badge no">Não</span>'}</td>
       <td><span class="score-badge" style="background:${scoreColor(e.score)}">${e.score || 0}</span></td>
       <td>${etapaSelect(e)}</td>
       <td>
@@ -278,7 +376,7 @@ function attachDnD() {
 function openDrawer(id) {
   const e = id ? escolas.find(x => x.id === id) : null;
   const isNew = !e;
-  const d = e || { etapa: 'novo', cidade: 'Fortaleza', estado: 'CE', ensino_medio: true, score: 60 };
+  const d = e || { etapa: ETAPA_INICIAL, cidade: 'Fortaleza', estado: 'CE', ensino_medio: true, score: 60 };
 
   const drawer = $('#drawer');
   drawer.innerHTML = `
@@ -302,8 +400,12 @@ function openDrawer(id) {
           <div class="field"><label>Endereço</label><input name="endereco" value="${esc(d.endereco || '')}" /></div>
           <div class="field-row">
             <div class="field"><label>Alunos</label><input name="alunos" type="number" min="0" value="${d.alunos ?? ''}" /></div>
-            <div class="field"><label>Site</label><input name="site" value="${esc(d.site || '')}" /></div>
+            <div class="field"><label>Ensino médio</label><select name="ensino_medio">
+              <option value="sim" ${d.ensino_medio ? 'selected' : ''}>Sim</option>
+              <option value="nao" ${!d.ensino_medio ? 'selected' : ''}>Não</option>
+            </select></div>
           </div>
+          <div class="field"><label>Site</label><input name="site" value="${esc(d.site || '')}" /></div>
         </div>
 
         <div class="detail-block">
@@ -373,6 +475,7 @@ function saveForm(id) {
   obj.alunos = obj.alunos ? parseInt(obj.alunos, 10) : null;
   obj.score = obj.score ? parseInt(obj.score, 10) : 0;
   obj.nota_enem = obj.nota_enem ? parseFloat(String(obj.nota_enem).replace(',', '.')) : null;
+  obj.ensino_medio = obj.ensino_medio === 'sim';
 
   if (id) {
     const e = escolas.find(x => x.id === id);
@@ -380,7 +483,6 @@ function saveForm(id) {
     toast('Escola atualizada');
   } else {
     obj.id = nextId();
-    obj.ensino_medio = true;
     escolas.push(obj);
     toast('Escola adicionada');
   }
@@ -413,22 +515,33 @@ function renderAll() {
   if ($('#view-kanban').classList.contains('active')) renderKanban();
 }
 
-/* ---------- Import / Export ---------- */
+/* ---------- Export ---------- */
 function exportJSON() {
   download('escolas-prospeccao.json', JSON.stringify(escolas, null, 2), 'application/json');
-  toast('Dados exportados');
+  toast('Backup JSON exportado');
 }
+function csvCell(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
 function exportCSV() {
-  const cols = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola',
-    'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'alunos', 'score', 'etapa', 'site', 'notas'];
-  const head = cols.join(';');
-  const rows = escolas.map(e => cols.map(c => {
-    let v = e[c] == null ? '' : String(e[c]);
-    if (c === 'etapa') v = etapaById(e.etapa).label;
-    return '"' + v.replace(/"/g, '""') + '"';
+  const head = CAMPOS.join(';');
+  const rows = escolas.map(e => CAMPOS.map(c => {
+    if (c === 'etapa') return csvCell(etapaById(e.etapa).label);
+    if (c === 'ensino_medio') return csvCell(e.ensino_medio ? 'Sim' : 'Não');
+    return csvCell(e[c] == null ? '' : e[c]);
   }).join(';'));
-  download('escolas-prospeccao.csv', '﻿' + [head, ...rows].join('\n'), 'text/csv');
-  toast('CSV exportado');
+  download('escolas-prospeccao.csv', '﻿' + [head, ...rows].join('\r\n'), 'text/csv;charset=utf-8');
+  toast('Planilha CSV exportada');
+}
+function downloadTemplate() {
+  const exemplo = {
+    nome: 'Colégio Exemplo', cidade: 'Fortaleza', estado: 'CE', bairro: 'Aldeota',
+    endereco: 'Av. Exemplo, 100', telefone_escola: '(85) 3000-0000', site: 'https://exemplo.com.br',
+    alunos: '1200', ensino_medio: 'Sim', decisor_nome: 'Maria Silva', decisor_cargo: 'Diretora',
+    decisor_telefone: '(85) 99999-0000', inovacao: 'Alta', score: '80', nota_enem: '',
+    etapa: 'Escola identificada', observacoes: 'Escola de referência no bairro', notas: '',
+  };
+  const csv = '﻿' + CAMPOS.join(';') + '\r\n' + CAMPOS.map(c => csvCell(exemplo[c])).join(';');
+  download('modelo-escolas.csv', csv, 'text/csv;charset=utf-8');
+  toast('Modelo baixado — preencha e importe');
 }
 function download(name, content, type) {
   const blob = new Blob([content], { type });
@@ -438,20 +551,138 @@ function download(name, content, type) {
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+/* ---------- Import ---------- */
+/* Detecta o formato do arquivo e chama o importador certo */
+function importFile(file) {
+  const nome = file.name.toLowerCase();
+  if (nome.endsWith('.json')) return importJSON(file);
+  if (nome.endsWith('.csv')) return importCSV(file);
+  // Sem extensão clara: fareja o conteúdo
+  const rd = new FileReader();
+  rd.onload = () => {
+    const t = String(rd.result).trim();
+    (t.startsWith('[') || t.startsWith('{')) ? importJSON(file) : importCSV(file);
+  };
+  rd.readAsText(file);
+}
 function importJSON(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const data = JSON.parse(reader.result);
-      if (!Array.isArray(data)) throw new Error('Formato inválido');
-      escolas = data.map((e, i) => ({ id: e.id || i + 1, etapa: 'novo', notas: '', ...e }));
-      saveData();
-      renderAll();
-      toast(`${escolas.length} escolas importadas`);
+      if (!Array.isArray(data)) throw new Error('o arquivo não é uma lista de escolas');
+      const records = data.map(e => ({ etapa: ETAPA_INICIAL, notas: '', ...e }));
+      showImportDialog(records, { recognized: ['(backup completo)'], ignored: [], format: 'backup JSON' });
     } catch (e) { toast('Arquivo inválido: ' + e.message); }
   };
   reader.readAsText(file);
 }
+
+/* Parser de CSV robusto (aspas, campos com quebra de linha, delimitador ; ou ,) */
+function parseCSV(text) {
+  text = String(text).replace(/^﻿/, '');
+  const nl = text.indexOf('\n');
+  const first = nl === -1 ? text : text.slice(0, nl);
+  const delim = (first.split(';').length - 1) >= (first.split(',').length - 1) ? ';' : ',';
+  const rows = [];
+  let field = '', row = [], inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
+      else field += c;
+    } else if (c === '"') { inQuotes = true; }
+    else if (c === delim) { row.push(field); field = ''; }
+    else if (c === '\r') { /* ignora */ }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else field += c;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function toNum(v) { const n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? null : n; }
+function toBool(v) { return ['sim', 's', 'true', '1', 'x', 'yes', 'possui', 'tem'].includes(normHeader(v)); }
+function toEnem(v) {
+  let s = String(v).trim(); if (!s) return null;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s); return isNaN(n) ? null : n;
+}
+function importCSV(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCSV(reader.result).filter(r => r.some(c => c && c.trim() !== ''));
+    if (rows.length < 2) { toast('Planilha vazia ou sem linhas de dados'); return; }
+    const headers = rows[0].map(normHeader);
+    const mapped = headers.map(h => HEADER_LOOKUP[h] || null);
+    if (!mapped.includes('nome')) {
+      toast('Não encontrei uma coluna de nome da escola. Baixe o modelo para ver o formato.');
+      return;
+    }
+    const recognized = [...new Set(mapped.filter(Boolean))];
+    const ignored = rows[0].filter((h, i) => !mapped[i] && h.trim() !== '');
+    const records = [];
+    for (let r = 1; r < rows.length; r++) {
+      const cells = rows[r];
+      const rec = {};
+      mapped.forEach((campo, i) => {
+        if (campo && cells[i] != null && cells[i].trim() !== '') rec[campo] = cells[i].trim();
+      });
+      if (!rec.nome) continue;
+      if ('alunos' in rec) rec.alunos = toNum(rec.alunos);
+      if ('ensino_medio' in rec) rec.ensino_medio = toBool(rec.ensino_medio);
+      if ('score' in rec) rec.score = toNum(rec.score) || 0;
+      if ('nota_enem' in rec) rec.nota_enem = toEnem(rec.nota_enem);
+      rec.etapa = rec.etapa ? (ETAPA_LOOKUP[normHeader(rec.etapa)] || ETAPA_INICIAL) : ETAPA_INICIAL;
+      if (!('notas' in rec)) rec.notas = '';
+      records.push(rec);
+    }
+    if (!records.length) { toast('Nenhuma escola válida encontrada na planilha'); return; }
+    showImportDialog(records, { recognized, ignored, format: 'planilha CSV' });
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+/* Diálogo de confirmação da importação (adicionar x substituir) */
+function showImportDialog(records, meta) {
+  const cols = meta.recognized.map(f => CAMPO_LABEL[f] || f).join(', ');
+  const modal = $('#modal');
+  modal.innerHTML = `
+    <h2>Importar ${esc(meta.format)}</h2>
+    <p class="modal-sub"><strong>${records.length}</strong> escola(s) encontrada(s) no arquivo.</p>
+    <div class="import-info">
+      <div><span class="k">Colunas reconhecidas:</span> ${esc(cols)}</div>
+      ${meta.ignored.length ? `<div class="warn"><span class="k">Colunas ignoradas:</span> ${esc(meta.ignored.join(', '))}</div>` : ''}
+    </div>
+    <p class="modal-sub">Como você quer importar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="impAdd">➕ Adicionar à lista atual</button>
+      <button class="btn btn-outline" id="impReplace">♻️ Substituir toda a lista</button>
+      <button class="btn btn-outline" id="impCancel">Cancelar</button>
+    </div>`;
+  openModal();
+  $('#impCancel').onclick = closeModal;
+  $('#impReplace').onclick = () => {
+    if (!confirm(`Isso vai APAGAR as ${escolas.length} escolas atuais e substituir pelas ${records.length} da planilha. Continuar?`)) return;
+    escolas = records.map((r, i) => ({ id: i + 1, ensino_medio: true, notas: '', ...r }));
+    saveData(); closeModal(); renderAll();
+    toast(`${escolas.length} escolas importadas (lista substituída)`);
+  };
+  $('#impAdd').onclick = () => {
+    const existentes = new Set(escolas.map(e => normHeader(e.nome)));
+    let id = nextId(), add = 0, skip = 0;
+    records.forEach(r => {
+      const chave = normHeader(r.nome);
+      if (existentes.has(chave)) { skip++; return; }
+      escolas.push({ id: id++, ensino_medio: true, notas: '', ...r });
+      existentes.add(chave); add++;
+    });
+    saveData(); closeModal(); renderAll();
+    toast(`${add} escola(s) adicionada(s)${skip ? ` · ${skip} já existiam (ignoradas)` : ''}`);
+  };
+}
+function openModal() { $('#overlay').classList.add('open'); $('#modal').classList.add('open'); }
+function closeModal() { $('#overlay').classList.remove('open'); $('#modal').classList.remove('open'); }
 function resetData() {
   if (!confirm('Restaurar os dados originais? Todas as suas edições, notas e movimentações no funil serão perdidas.')) return;
   escolas = JSON.parse(JSON.stringify(SEED_ESCOLAS));
@@ -490,11 +721,17 @@ function bindEvents() {
   }));
 
   // Filtros
-  ['#searchInput', '#filterCidade', '#filterEtapa', '#filterInovacao'].forEach(sel =>
-    $(sel).addEventListener('input', () => {
-      renderTable();
-      if ($('#view-kanban').classList.contains('active')) renderKanban();
-    }));
+  const refilter = () => {
+    populateFilters();               // cidades acompanham o estado selecionado
+    renderTable();
+    if ($('#view-kanban').classList.contains('active')) renderKanban();
+  };
+  ['#searchInput', '#filterEstado', '#filterCidade', '#filterMedio', '#filterEtapa', '#filterInovacao']
+    .forEach(sel => $(sel).addEventListener('input', refilter));
+  $('#prioCE').addEventListener('change', () => {
+    renderTable();
+    if ($('#view-kanban').classList.contains('active')) renderKanban();
+  });
 
   // Ordenação
   $$('thead th[data-sort]').forEach(th => th.addEventListener('click', () => {
@@ -525,20 +762,21 @@ function bindEvents() {
 
   // Header
   $('#btnNova').onclick = () => openDrawer(null);
-  $('#overlay').onclick = closeDrawer;
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeMenu(); } });
+  $('#overlay').onclick = () => { closeDrawer(); closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeModal(); closeMenu(); } });
 
   // Menu de dados
   $('#btnMenu').onclick = ev => { ev.stopPropagation(); $('#dataMenu').classList.toggle('open'); };
   document.body.addEventListener('click', ev => {
     if (!ev.target.closest('.menu-wrap')) closeMenu();
   });
-  $('#btnExport').onclick = () => { exportJSON(); closeMenu(); };
-  $('#btnCSV').onclick = () => { exportCSV(); closeMenu(); };
   $('#btnImport').onclick = () => { $('#fileInput').click(); closeMenu(); };
+  $('#btnTemplate').onclick = () => { downloadTemplate(); closeMenu(); };
+  $('#btnCSV').onclick = () => { exportCSV(); closeMenu(); };
+  $('#btnExport').onclick = () => { exportJSON(); closeMenu(); };
   $('#btnReset').onclick = () => { resetData(); closeMenu(); };
   $('#btnTheme').onclick = () => { toggleTheme(); closeMenu(); };
-  $('#fileInput').onchange = ev => { if (ev.target.files[0]) importJSON(ev.target.files[0]); ev.target.value = ''; };
+  $('#fileInput').onchange = ev => { if (ev.target.files[0]) importFile(ev.target.files[0]); ev.target.value = ''; };
 }
 function closeMenu() { const m = $('#dataMenu'); if (m) m.classList.remove('open'); }
 

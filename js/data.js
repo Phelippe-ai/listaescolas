@@ -19,7 +19,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 98,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -40,7 +40,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 97,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -61,7 +61,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 96,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -82,7 +82,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 96,
     "observacoes": "Maior escola particular do Ceará em número de alunos. Parte da Rede Damas Educacional. Bilíngue, tempo integral disponível.",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -103,7 +103,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Alta",
     "score": 95,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -124,7 +124,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 95,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -145,7 +145,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Alta",
     "score": 94,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -166,7 +166,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Muito Alta",
     "score": 94,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -187,7 +187,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Alta",
     "score": 93,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -208,7 +208,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Alta",
     "score": 92,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -229,7 +229,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 89,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -250,7 +250,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 89,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -271,7 +271,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 89,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -292,7 +292,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 89,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -313,7 +313,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 88,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -334,7 +334,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 88,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -355,7 +355,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 88,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -376,7 +376,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 88,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -397,7 +397,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 87,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -418,7 +418,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 87,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -439,7 +439,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 87,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -460,7 +460,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 87,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -481,7 +481,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 86,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -502,7 +502,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 86,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -523,7 +523,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 86,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -544,7 +544,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 86,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -565,7 +565,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 85,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -586,7 +586,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 85,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -607,7 +607,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 85,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -628,7 +628,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 85,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -649,7 +649,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 84,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -670,7 +670,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 84,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -691,7 +691,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 84,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -712,7 +712,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 84,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -733,7 +733,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 83,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -754,7 +754,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 83,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -775,7 +775,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 83,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -796,7 +796,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 83,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -817,7 +817,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 82,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -838,7 +838,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 82,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -859,7 +859,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 82,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -880,7 +880,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 82,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -901,7 +901,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 81,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -922,7 +922,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 81,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -943,7 +943,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 81,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -964,7 +964,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 81,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -985,7 +985,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 80,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1006,7 +1006,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 80,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1027,7 +1027,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 80,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1048,7 +1048,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 80,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1069,7 +1069,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 79,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1090,7 +1090,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 79,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1111,7 +1111,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 79,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1132,7 +1132,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 79,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1153,7 +1153,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 78,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1174,7 +1174,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 78,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1195,7 +1195,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 78,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1216,7 +1216,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 78,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1237,7 +1237,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 77,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1258,7 +1258,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 77,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1279,7 +1279,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 77,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1300,7 +1300,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 77,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1321,7 +1321,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 76,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1342,7 +1342,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 76,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1363,7 +1363,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 76,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1384,7 +1384,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 76,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1405,7 +1405,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 76,
     "observacoes": "Educação cristã com excelência acadêmica. Sistema integral. Estrutura moderna. Boa infraestrutura segundo ranking SchoolAdvisor.",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1426,7 +1426,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 75,
     "observacoes": "30 anos de história. Boa infraestrutura (2º no ranking IIESA). Escola menor, mas com estrutura completa e ensino médio.",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1447,7 +1447,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 75,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1468,7 +1468,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 75,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1489,7 +1489,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 75,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1510,7 +1510,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 75,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1531,7 +1531,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 74,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1552,7 +1552,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 74,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1573,7 +1573,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 74,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1594,7 +1594,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 74,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1615,7 +1615,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 74,
     "observacoes": "Fundado em 1865. 160 anos de história. Berçário ao Ensino Médio. Escola religiosa tradicional no centro de Fortaleza.",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1636,7 +1636,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 73,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1657,7 +1657,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 73,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1678,7 +1678,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 73,
     "observacoes": "1º lugar no ranking ICDSA (corpo docente) e 7º no IIESA (infraestrutura). Fundado em 1963. Pertence à Paróquia de Fátima. Novo membro da ANEC (2025).",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1699,7 +1699,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 73,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1720,7 +1720,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 73,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1741,7 +1741,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 72,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1762,7 +1762,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 72,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1783,7 +1783,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 72,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1804,7 +1804,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 72,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1825,7 +1825,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 72,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1846,7 +1846,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 71,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1867,7 +1867,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 71,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1888,7 +1888,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 71,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1909,7 +1909,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 71,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1930,7 +1930,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 71,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1951,7 +1951,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 70,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1972,7 +1972,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 70,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -1993,7 +1993,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 70,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -2014,7 +2014,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 70,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   },
   {
@@ -2035,7 +2035,7 @@ const SEED_ESCOLAS = [
     "inovacao": "Média/Alta",
     "score": 70,
     "observacoes": "",
-    "etapa": "novo",
+    "etapa": "identificada",
     "notas": ""
   }
 ];
