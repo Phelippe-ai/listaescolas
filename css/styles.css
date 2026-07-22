@@ -336,6 +336,26 @@ tbody tr:last-child td { border-bottom: none; }
 .quick-contacts a.tel { background: var(--primary-soft); color: var(--primary); border-color: transparent; }
 .quick-contacts a:hover { filter: brightness(.96); }
 
+/* Modal (importação) */
+.modal-card {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -46%) scale(.98);
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-lg); z-index: 102; width: 460px; max-width: 92vw; padding: 24px;
+  opacity: 0; pointer-events: none; transition: .2s;
+}
+.modal-card.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+.modal-card h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
+.modal-sub { font-size: .9rem; color: var(--text-muted); margin: 12px 0 6px; }
+.import-info {
+  background: var(--card-2); border: 1px solid var(--border); border-radius: 11px;
+  padding: 13px 14px; font-size: .82rem; line-height: 1.7;
+}
+.import-info .k { font-weight: 700; color: var(--text-muted); }
+.import-info .warn { color: var(--accent); margin-top: 5px; }
+.modal-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
+.modal-actions .btn { justify-content: center; padding: 12px; }
+
 /* Toast */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);

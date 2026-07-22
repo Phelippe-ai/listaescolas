@@ -40,11 +40,31 @@ Arraste os cards entre as colunas para atualizar a etapa de cada escola:
 12. **Contrato assinado**
 13. **Projeto piloto**
 
-### Menu **Dados**
-- **Exportar (JSON)** / **Importar (JSON)** — backup completo dos seus dados.
-- **Exportar CSV** — abre no Excel / Google Sheets.
+### Menu **Dados** — importar e exportar planilhas
+- **Importar planilha (CSV / JSON)** — traz escolas de uma planilha direto para
+  a base. O sistema **reconhece as colunas automaticamente**, aceitando nomes
+  variados (ex.: *Escola*, *Nome da escola*, *Colégio*; *Telefone*, *Contato*;
+  *Decisor*, *Diretor*, *Responsável*; *Celular*, *WhatsApp* etc.). Na
+  importação você escolhe **Adicionar** à lista atual (ignora escolas repetidas
+  pelo nome) ou **Substituir** tudo.
+- **Baixar modelo de planilha** — um CSV de exemplo com todas as colunas certas,
+  pronto para você preencher no Excel / Google Sheets e importar.
+- **Exportar planilha (CSV)** — baixa toda a base em CSV (abre no Excel / Google
+  Sheets). Pode reimportar depois: o formato faz o ciclo completo.
+- **Exportar backup (JSON)** — cópia de segurança fiel de todos os dados.
 - **Alternar tema** — claro/escuro.
 - **Restaurar dados originais** — volta à lista-semente da pesquisa.
+
+> **Como levar uma planilha do Excel para a plataforma:** no Excel/Google Sheets,
+> vá em *Arquivo → Salvar como / Fazer download* e escolha **CSV**. Depois use
+> *Importar planilha*. (O modelo acima já mostra as colunas esperadas.)
+
+#### Colunas reconhecidas na importação
+`nome`, `cidade`, `estado (UF)`, `bairro`, `endereço`, `telefone da escola`,
+`site`, `alunos`, `decisor (nome)`, `cargo`, `telefone direto`, `inovação`,
+`score`, `nota ENEM`, `etapa`, `observações`, `notas`. Só o **nome** é
+obrigatório; o resto é opcional. Colunas não reconhecidas são simplesmente
+ignoradas (a plataforma avisa quais).
 
 ## Publicar online (GitHub Pages)
 

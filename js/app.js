@@ -27,6 +27,52 @@ const ETAPAS = [
 const ETAPA_INICIAL = ETAPAS[0].id;
 const etapaById = id => ETAPAS.find(e => e.id === id) || ETAPAS[0];
 
+/* Campos exportados/importados e seus rótulos amigáveis */
+const CAMPOS = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola', 'site',
+  'alunos', 'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'inovacao', 'score',
+  'nota_enem', 'etapa', 'observacoes', 'notas'];
+const CAMPO_LABEL = {
+  nome: 'Escola', cidade: 'Cidade', estado: 'UF', bairro: 'Bairro', endereco: 'Endereço',
+  telefone_escola: 'Tel. escola', site: 'Site', alunos: 'Alunos', decisor_nome: 'Decisor',
+  decisor_cargo: 'Cargo', decisor_telefone: 'Tel. direto', inovacao: 'Inovação', score: 'Score',
+  nota_enem: 'Nota ENEM', etapa: 'Etapa', observacoes: 'Observações', notas: 'Notas',
+};
+
+/* Nomes de coluna aceitos na importação (o sistema reconhece variações comuns de planilha) */
+const HEADER_ALIASES = {
+  nome: ['nome', 'escola', 'nome da escola', 'colegio', 'instituicao', 'nome_escola', 'razao social'],
+  cidade: ['cidade', 'municipio'],
+  estado: ['estado', 'uf'],
+  bairro: ['bairro'],
+  endereco: ['endereco', 'logradouro', 'rua', 'endereco completo'],
+  telefone_escola: ['telefone', 'telefone da escola', 'telefone_escola', 'fone', 'contato', 'contato_escola', 'telefone principal', 'telefone geral'],
+  site: ['site', 'website', 'url', 'pagina'],
+  alunos: ['alunos', 'num_alunos', 'numero de alunos', 'n alunos', 'no alunos', 'n de alunos', 'qtd alunos', 'qtde alunos', 'quantidade de alunos', 'total de alunos', 'matriculas'],
+  decisor_nome: ['decisor', 'decisor_nome', 'nome do decisor', 'responsavel', 'diretor', 'gestor', 'contato nome', 'nome contato', 'nome do responsavel'],
+  decisor_cargo: ['cargo', 'decisor_cargo', 'funcao', 'cargo do decisor', 'cargo contato'],
+  decisor_telefone: ['telefone direto', 'decisor_telefone', 'celular', 'whatsapp', 'wpp', 'telefone do decisor', 'contato direto', 'telefone_decisor', 'telefone responsavel'],
+  inovacao: ['inovacao', 'perfil de inovacao', 'perfil_inovacao', 'perfil inovacao'],
+  score: ['score', 'pontuacao', 'prioridade', 'score_prioridade', 'nota prioridade'],
+  nota_enem: ['nota enem', 'nota_enem', 'enem', 'media enem'],
+  etapa: ['etapa', 'status', 'funil', 'fase', 'estagio', 'etapa do funil'],
+  observacoes: ['observacoes', 'obs', 'observacao', 'notas gerais', 'comentarios'],
+  notas: ['notas', 'historico', 'anotacoes', 'notas prospeccao', 'notas da prospeccao'],
+};
+
+/* Normaliza um cabeçalho: sem acento, minúsculo, espaços colapsados */
+function normHeader(s) {
+  return String(s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+/* Lookup: cabeçalho normalizado -> campo canônico */
+const HEADER_LOOKUP = {};
+for (const [campo, aliases] of Object.entries(HEADER_ALIASES)) {
+  aliases.forEach(a => { HEADER_LOOKUP[normHeader(a)] = campo; });
+}
+/* Lookup de etapa: aceita o id OU o rótulo escrito na planilha */
+const ETAPA_LOOKUP = {};
+ETAPAS.forEach(e => { ETAPA_LOOKUP[e.id] = e.id; ETAPA_LOOKUP[normHeader(e.label)] = e.id; });
+
 /* ---------- Estado ---------- */
 let escolas = [];
 let sortKey = 'score';
@@ -437,22 +483,32 @@ function renderAll() {
   if ($('#view-kanban').classList.contains('active')) renderKanban();
 }
 
-/* ---------- Import / Export ---------- */
+/* ---------- Export ---------- */
 function exportJSON() {
   download('escolas-prospeccao.json', JSON.stringify(escolas, null, 2), 'application/json');
-  toast('Dados exportados');
+  toast('Backup JSON exportado');
 }
+function csvCell(v) { return '"' + String(v ?? '').replace(/"/g, '""') + '"'; }
 function exportCSV() {
-  const cols = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola',
-    'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'alunos', 'score', 'etapa', 'site', 'notas'];
-  const head = cols.join(';');
-  const rows = escolas.map(e => cols.map(c => {
-    let v = e[c] == null ? '' : String(e[c]);
-    if (c === 'etapa') v = etapaById(e.etapa).label;
-    return '"' + v.replace(/"/g, '""') + '"';
+  const head = CAMPOS.join(';');
+  const rows = escolas.map(e => CAMPOS.map(c => {
+    if (c === 'etapa') return csvCell(etapaById(e.etapa).label);
+    return csvCell(e[c] == null ? '' : e[c]);
   }).join(';'));
-  download('escolas-prospeccao.csv', '﻿' + [head, ...rows].join('\n'), 'text/csv');
-  toast('CSV exportado');
+  download('escolas-prospeccao.csv', '﻿' + [head, ...rows].join('\r\n'), 'text/csv;charset=utf-8');
+  toast('Planilha CSV exportada');
+}
+function downloadTemplate() {
+  const exemplo = {
+    nome: 'Colégio Exemplo', cidade: 'Fortaleza', estado: 'CE', bairro: 'Aldeota',
+    endereco: 'Av. Exemplo, 100', telefone_escola: '(85) 3000-0000', site: 'https://exemplo.com.br',
+    alunos: '1200', decisor_nome: 'Maria Silva', decisor_cargo: 'Diretora',
+    decisor_telefone: '(85) 99999-0000', inovacao: 'Alta', score: '80', nota_enem: '',
+    etapa: 'Escola identificada', observacoes: 'Escola de referência no bairro', notas: '',
+  };
+  const csv = '﻿' + CAMPOS.join(';') + '\r\n' + CAMPOS.map(c => csvCell(exemplo[c])).join(';');
+  download('modelo-escolas.csv', csv, 'text/csv;charset=utf-8');
+  toast('Modelo baixado — preencha e importe');
 }
 function download(name, content, type) {
   const blob = new Blob([content], { type });
@@ -462,21 +518,136 @@ function download(name, content, type) {
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+/* ---------- Import ---------- */
+/* Detecta o formato do arquivo e chama o importador certo */
+function importFile(file) {
+  const nome = file.name.toLowerCase();
+  if (nome.endsWith('.json')) return importJSON(file);
+  if (nome.endsWith('.csv')) return importCSV(file);
+  // Sem extensão clara: fareja o conteúdo
+  const rd = new FileReader();
+  rd.onload = () => {
+    const t = String(rd.result).trim();
+    (t.startsWith('[') || t.startsWith('{')) ? importJSON(file) : importCSV(file);
+  };
+  rd.readAsText(file);
+}
 function importJSON(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const data = JSON.parse(reader.result);
-      if (!Array.isArray(data)) throw new Error('Formato inválido');
-      escolas = data.map((e, i) => ({ id: e.id || i + 1, etapa: ETAPA_INICIAL, notas: '', ...e }));
-      migrateEtapas();
-      saveData();
-      renderAll();
-      toast(`${escolas.length} escolas importadas`);
+      if (!Array.isArray(data)) throw new Error('o arquivo não é uma lista de escolas');
+      const records = data.map(e => ({ etapa: ETAPA_INICIAL, notas: '', ...e }));
+      showImportDialog(records, { recognized: ['(backup completo)'], ignored: [], format: 'backup JSON' });
     } catch (e) { toast('Arquivo inválido: ' + e.message); }
   };
   reader.readAsText(file);
 }
+
+/* Parser de CSV robusto (aspas, campos com quebra de linha, delimitador ; ou ,) */
+function parseCSV(text) {
+  text = String(text).replace(/^﻿/, '');
+  const nl = text.indexOf('\n');
+  const first = nl === -1 ? text : text.slice(0, nl);
+  const delim = (first.split(';').length - 1) >= (first.split(',').length - 1) ? ';' : ',';
+  const rows = [];
+  let field = '', row = [], inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
+      else field += c;
+    } else if (c === '"') { inQuotes = true; }
+    else if (c === delim) { row.push(field); field = ''; }
+    else if (c === '\r') { /* ignora */ }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else field += c;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function toNum(v) { const n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? null : n; }
+function toEnem(v) {
+  let s = String(v).trim(); if (!s) return null;
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s); return isNaN(n) ? null : n;
+}
+function importCSV(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const rows = parseCSV(reader.result).filter(r => r.some(c => c && c.trim() !== ''));
+    if (rows.length < 2) { toast('Planilha vazia ou sem linhas de dados'); return; }
+    const headers = rows[0].map(normHeader);
+    const mapped = headers.map(h => HEADER_LOOKUP[h] || null);
+    if (!mapped.includes('nome')) {
+      toast('Não encontrei uma coluna de nome da escola. Baixe o modelo para ver o formato.');
+      return;
+    }
+    const recognized = [...new Set(mapped.filter(Boolean))];
+    const ignored = rows[0].filter((h, i) => !mapped[i] && h.trim() !== '');
+    const records = [];
+    for (let r = 1; r < rows.length; r++) {
+      const cells = rows[r];
+      const rec = {};
+      mapped.forEach((campo, i) => {
+        if (campo && cells[i] != null && cells[i].trim() !== '') rec[campo] = cells[i].trim();
+      });
+      if (!rec.nome) continue;
+      if ('alunos' in rec) rec.alunos = toNum(rec.alunos);
+      if ('score' in rec) rec.score = toNum(rec.score) || 0;
+      if ('nota_enem' in rec) rec.nota_enem = toEnem(rec.nota_enem);
+      rec.etapa = rec.etapa ? (ETAPA_LOOKUP[normHeader(rec.etapa)] || ETAPA_INICIAL) : ETAPA_INICIAL;
+      if (!('notas' in rec)) rec.notas = '';
+      records.push(rec);
+    }
+    if (!records.length) { toast('Nenhuma escola válida encontrada na planilha'); return; }
+    showImportDialog(records, { recognized, ignored, format: 'planilha CSV' });
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+/* Diálogo de confirmação da importação (adicionar x substituir) */
+function showImportDialog(records, meta) {
+  const cols = meta.recognized.map(f => CAMPO_LABEL[f] || f).join(', ');
+  const modal = $('#modal');
+  modal.innerHTML = `
+    <h2>Importar ${esc(meta.format)}</h2>
+    <p class="modal-sub"><strong>${records.length}</strong> escola(s) encontrada(s) no arquivo.</p>
+    <div class="import-info">
+      <div><span class="k">Colunas reconhecidas:</span> ${esc(cols)}</div>
+      ${meta.ignored.length ? `<div class="warn"><span class="k">Colunas ignoradas:</span> ${esc(meta.ignored.join(', '))}</div>` : ''}
+    </div>
+    <p class="modal-sub">Como você quer importar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="impAdd">➕ Adicionar à lista atual</button>
+      <button class="btn btn-outline" id="impReplace">♻️ Substituir toda a lista</button>
+      <button class="btn btn-outline" id="impCancel">Cancelar</button>
+    </div>`;
+  openModal();
+  $('#impCancel').onclick = closeModal;
+  $('#impReplace').onclick = () => {
+    if (!confirm(`Isso vai APAGAR as ${escolas.length} escolas atuais e substituir pelas ${records.length} da planilha. Continuar?`)) return;
+    escolas = records.map((r, i) => ({ id: i + 1, ensino_medio: true, notas: '', ...r }));
+    saveData(); closeModal(); renderAll();
+    toast(`${escolas.length} escolas importadas (lista substituída)`);
+  };
+  $('#impAdd').onclick = () => {
+    const existentes = new Set(escolas.map(e => normHeader(e.nome)));
+    let id = nextId(), add = 0, skip = 0;
+    records.forEach(r => {
+      const chave = normHeader(r.nome);
+      if (existentes.has(chave)) { skip++; return; }
+      escolas.push({ id: id++, ensino_medio: true, notas: '', ...r });
+      existentes.add(chave); add++;
+    });
+    saveData(); closeModal(); renderAll();
+    toast(`${add} escola(s) adicionada(s)${skip ? ` · ${skip} já existiam (ignoradas)` : ''}`);
+  };
+}
+function openModal() { $('#overlay').classList.add('open'); $('#modal').classList.add('open'); }
+function closeModal() { $('#overlay').classList.remove('open'); $('#modal').classList.remove('open'); }
 function resetData() {
   if (!confirm('Restaurar os dados originais? Todas as suas edições, notas e movimentações no funil serão perdidas.')) return;
   escolas = JSON.parse(JSON.stringify(SEED_ESCOLAS));
@@ -550,20 +721,21 @@ function bindEvents() {
 
   // Header
   $('#btnNova').onclick = () => openDrawer(null);
-  $('#overlay').onclick = closeDrawer;
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeMenu(); } });
+  $('#overlay').onclick = () => { closeDrawer(); closeModal(); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeModal(); closeMenu(); } });
 
   // Menu de dados
   $('#btnMenu').onclick = ev => { ev.stopPropagation(); $('#dataMenu').classList.toggle('open'); };
   document.body.addEventListener('click', ev => {
     if (!ev.target.closest('.menu-wrap')) closeMenu();
   });
-  $('#btnExport').onclick = () => { exportJSON(); closeMenu(); };
-  $('#btnCSV').onclick = () => { exportCSV(); closeMenu(); };
   $('#btnImport').onclick = () => { $('#fileInput').click(); closeMenu(); };
+  $('#btnTemplate').onclick = () => { downloadTemplate(); closeMenu(); };
+  $('#btnCSV').onclick = () => { exportCSV(); closeMenu(); };
+  $('#btnExport').onclick = () => { exportJSON(); closeMenu(); };
   $('#btnReset').onclick = () => { resetData(); closeMenu(); };
   $('#btnTheme').onclick = () => { toggleTheme(); closeMenu(); };
-  $('#fileInput').onchange = ev => { if (ev.target.files[0]) importJSON(ev.target.files[0]); ev.target.value = ''; };
+  $('#fileInput').onchange = ev => { if (ev.target.files[0]) importFile(ev.target.files[0]); ev.target.value = ''; };
 }
 function closeMenu() { const m = $('#dataMenu'); if (m) m.classList.remove('open'); }
 
