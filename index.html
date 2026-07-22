@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fala Tio — Prospecção de Escolas</title>
+  <meta name="description" content="Plataforma para gerir a prospecção ativa de escolas: lista interativa de contatos e funil Kanban." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-logo">FT</div>
+          <div>
+            <h1>Fala Tio · Prospecção</h1>
+            <p>Gestão de prospecção ativa de escolas</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost-light" id="btnNova">＋ Nova escola</button>
+          <div class="menu-wrap">
+            <button class="btn btn-ghost-light" id="btnMenu" aria-label="Menu de dados">⋯ Dados</button>
+            <div class="menu" id="dataMenu">
+              <button id="btnExport">⬇️ Exportar (JSON)</button>
+              <button id="btnImport">⬆️ Importar (JSON)</button>
+              <button id="btnCSV">📄 Exportar CSV</button>
+              <hr />
+              <button id="btnTheme">🌓 Alternar tema</button>
+              <hr />
+              <button id="btnReset" class="danger">↺ Restaurar dados originais</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+
+      <nav class="tabs">
+        <button data-view="lista" class="active">📋 Lista</button>
+        <button data-view="kanban">🗂️ Funil (Kanban)</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== LISTA ===== -->
+    <section class="view active" id="view-lista">
+      <div class="toolbar">
+        <div class="search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Buscar por escola, decisor, bairro…" />
+        </div>
+        <select class="filter" id="filterCidade"><option value="">Todas as cidades</option></select>
+        <select class="filter" id="filterEtapa"><option value="">Todas as etapas</option></select>
+        <select class="filter" id="filterInovacao"><option value="">Toda inovação</option></select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="nome">Escola <span class="arrow">↕</span></th>
+              <th data-sort="cidade">Local <span class="arrow">↕</span></th>
+              <th data-sort="decisor_nome">Decisor <span class="arrow">↕</span></th>
+              <th class="no-sort">Contatos</th>
+              <th data-sort="alunos">Alunos <span class="arrow">↕</span></th>
+              <th data-sort="score">Score <span class="arrow">↕</span></th>
+              <th data-sort="etapa">Etapa <span class="arrow">↕</span></th>
+              <th class="no-sort"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== KANBAN ===== -->
+    <section class="view" id="view-kanban">
+      <div class="kanban" id="kanban"></div>
+    </section>
+  </main>
+
+  <!-- Drawer (detalhe / edição) -->
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer"></aside>
+
+  <div class="toast" id="toast"></div>
+  <input type="file" id="fileInput" accept="application/json" style="display:none" />
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
