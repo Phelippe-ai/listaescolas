@@ -26,13 +26,19 @@ Abra o arquivo `index.html` no navegador (duplo clique) ou publique numa URL
 ### Aba **Funil (Kanban)**
 Arraste os cards entre as colunas para atualizar a etapa de cada escola:
 
-1. **Contato pendente** — ainda não iniciado
-2. **Tentativa de contato**
-3. **Falei com o decisor**
-4. **Reunião agendada**
-5. **Reunião c/ coordenação**
-6. **Fechado ✓**
-7. **Sem interesse**
+1. **Escola identificada**
+2. **Primeiro contato**
+3. **Contato com a coordenação**
+4. **Reunião c/ coordenação agendada**
+5. **Reunião c/ coordenação realizada**
+6. **Encaminhado para a direção**
+7. **Contato com a direção**
+8. **Reunião c/ direção agendada**
+9. **Reunião c/ direção realizada**
+10. **Contrato enviado**
+11. **Contrato em análise**
+12. **Contrato assinado**
+13. **Projeto piloto**
 
 ### Menu **Dados**
 - **Exportar (JSON)** / **Importar (JSON)** — backup completo dos seus dados.

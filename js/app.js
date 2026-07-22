@@ -8,16 +8,23 @@
 const STORAGE_KEY = 'falatio_escolas_v1';
 const THEME_KEY = 'falatio_theme';
 
-/* Definição das etapas do funil de prospecção */
+/* Definição das etapas do funil de prospecção (fluxo completo coordenação → direção → contrato) */
 const ETAPAS = [
-  { id: 'novo',        label: 'Contato pendente',        color: 'var(--st-novo)',        hex: '#94A3B8' },
-  { id: 'contato',     label: 'Tentativa de contato',    color: 'var(--st-contato)',     hex: '#3B82F6' },
-  { id: 'decisor',     label: 'Falei com o decisor',     color: 'var(--st-decisor)',     hex: '#8B5CF6' },
-  { id: 'reuniao',     label: 'Reunião agendada',        color: 'var(--st-reuniao)',     hex: '#F59E0B' },
-  { id: 'coordenacao', label: 'Reunião c/ coordenação',  color: 'var(--st-coordenacao)', hex: '#14B8A6' },
-  { id: 'fechado',     label: 'Fechado ✓',               color: 'var(--st-fechado)',     hex: '#10B981' },
-  { id: 'perdido',     label: 'Sem interesse',           color: 'var(--st-perdido)',     hex: '#EF4444' },
+  { id: 'identificada',            label: 'Escola identificada',              hex: '#94A3B8' },
+  { id: 'primeiro_contato',        label: 'Primeiro contato',                 hex: '#38BDF8' },
+  { id: 'contato_coord',           label: 'Contato com a coordenação',        hex: '#3B82F6' },
+  { id: 'reuniao_coord_agendada',  label: 'Reunião c/ coordenação agendada',  hex: '#6366F1' },
+  { id: 'reuniao_coord_realizada', label: 'Reunião c/ coordenação realizada', hex: '#4F46E5' },
+  { id: 'encaminhado_direcao',     label: 'Encaminhado para a direção',       hex: '#8B5CF6' },
+  { id: 'contato_direcao',         label: 'Contato com a direção',            hex: '#A855F7' },
+  { id: 'reuniao_direcao_agendada',label: 'Reunião c/ direção agendada',      hex: '#C026D3' },
+  { id: 'reuniao_direcao_realizada',label:'Reunião c/ direção realizada',     hex: '#DB2777' },
+  { id: 'contrato_enviado',        label: 'Contrato enviado',                 hex: '#F59E0B' },
+  { id: 'contrato_analise',        label: 'Contrato em análise',              hex: '#F97316' },
+  { id: 'contrato_assinado',       label: 'Contrato assinado',                hex: '#10B981' },
+  { id: 'projeto_piloto',          label: 'Projeto piloto',                   hex: '#059669' },
 ];
+const ETAPA_INICIAL = ETAPAS[0].id;
 const etapaById = id => ETAPAS.find(e => e.id === id) || ETAPAS[0];
 
 /* ---------- Estado ---------- */
@@ -29,9 +36,23 @@ let sortDir = -1; // -1 desc, 1 asc
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) { escolas = JSON.parse(raw); return; }
+    if (raw) { escolas = JSON.parse(raw); migrateEtapas(); return; }
   } catch (e) { console.warn('Falha ao ler dados salvos', e); }
   escolas = JSON.parse(JSON.stringify(SEED_ESCOLAS));
+  migrateEtapas();
+}
+/* Garante que toda escola tenha uma etapa válida do fluxo atual.
+   Mapeia etapas de versões antigas do funil para a etapa inicial. */
+function migrateEtapas() {
+  const validos = new Set(ETAPAS.map(e => e.id));
+  const legado = {
+    novo: 'identificada', contato: 'primeiro_contato', decisor: 'contato_coord',
+    reuniao: 'reuniao_coord_agendada', coordenacao: 'reuniao_coord_realizada',
+    fechado: 'contrato_assinado', perdido: 'identificada',
+  };
+  escolas.forEach(e => {
+    if (!validos.has(e.etapa)) e.etapa = legado[e.etapa] || ETAPA_INICIAL;
+  });
 }
 function saveData() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(escolas)); }
@@ -96,12 +117,15 @@ function applyFilters(list) {
 /* ---------- Stats ---------- */
 function renderStats() {
   const total = escolas.length;
-  const ativos = escolas.filter(e => !['novo', 'perdido', 'fechado'].includes(e.etapa)).length;
-  const reunioes = escolas.filter(e => ['reuniao', 'coordenacao'].includes(e.etapa)).length;
-  const fechados = escolas.filter(e => e.etapa === 'fechado').length;
+  const emAndamento = escolas.filter(e =>
+    e.etapa !== ETAPA_INICIAL && !['contrato_assinado', 'projeto_piloto'].includes(e.etapa)).length;
+  const reunioes = escolas.filter(e => [
+    'reuniao_coord_agendada', 'reuniao_coord_realizada',
+    'reuniao_direcao_agendada', 'reuniao_direcao_realizada'].includes(e.etapa)).length;
+  const fechados = escolas.filter(e => ['contrato_assinado', 'projeto_piloto'].includes(e.etapa)).length;
   const stats = [
     { num: total, lbl: 'Escolas' },
-    { num: ativos, lbl: 'Em negociação' },
+    { num: emAndamento, lbl: 'Em andamento' },
     { num: reunioes, lbl: 'Reuniões' },
     { num: fechados, lbl: 'Fechados' },
   ];
@@ -278,7 +302,7 @@ function attachDnD() {
 function openDrawer(id) {
   const e = id ? escolas.find(x => x.id === id) : null;
   const isNew = !e;
-  const d = e || { etapa: 'novo', cidade: 'Fortaleza', estado: 'CE', ensino_medio: true, score: 60 };
+  const d = e || { etapa: ETAPA_INICIAL, cidade: 'Fortaleza', estado: 'CE', ensino_medio: true, score: 60 };
 
   const drawer = $('#drawer');
   drawer.innerHTML = `
@@ -444,7 +468,8 @@ function importJSON(file) {
     try {
       const data = JSON.parse(reader.result);
       if (!Array.isArray(data)) throw new Error('Formato inválido');
-      escolas = data.map((e, i) => ({ id: e.id || i + 1, etapa: 'novo', notas: '', ...e }));
+      escolas = data.map((e, i) => ({ id: e.id || i + 1, etapa: ETAPA_INICIAL, notas: '', ...e }));
+      migrateEtapas();
       saveData();
       renderAll();
       toast(`${escolas.length} escolas importadas`);
