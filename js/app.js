@@ -29,13 +29,14 @@ const etapaById = id => ETAPAS.find(e => e.id === id) || ETAPAS[0];
 
 /* Campos exportados/importados e seus rótulos amigáveis */
 const CAMPOS = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola', 'site',
-  'alunos', 'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'inovacao', 'score',
-  'nota_enem', 'etapa', 'observacoes', 'notas'];
+  'alunos', 'ensino_medio', 'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'inovacao',
+  'score', 'nota_enem', 'etapa', 'observacoes', 'notas'];
 const CAMPO_LABEL = {
   nome: 'Escola', cidade: 'Cidade', estado: 'UF', bairro: 'Bairro', endereco: 'Endereço',
-  telefone_escola: 'Tel. escola', site: 'Site', alunos: 'Alunos', decisor_nome: 'Decisor',
-  decisor_cargo: 'Cargo', decisor_telefone: 'Tel. direto', inovacao: 'Inovação', score: 'Score',
-  nota_enem: 'Nota ENEM', etapa: 'Etapa', observacoes: 'Observações', notas: 'Notas',
+  telefone_escola: 'Tel. escola', site: 'Site', alunos: 'Alunos', ensino_medio: 'Ensino médio',
+  decisor_nome: 'Decisor', decisor_cargo: 'Cargo', decisor_telefone: 'Tel. direto',
+  inovacao: 'Inovação', score: 'Score', nota_enem: 'Nota ENEM', etapa: 'Etapa',
+  observacoes: 'Observações', notas: 'Notas',
 };
 
 /* Nomes de coluna aceitos na importação (o sistema reconhece variações comuns de planilha) */
@@ -48,6 +49,7 @@ const HEADER_ALIASES = {
   telefone_escola: ['telefone', 'telefone da escola', 'telefone_escola', 'fone', 'contato', 'contato_escola', 'telefone principal', 'telefone geral'],
   site: ['site', 'website', 'url', 'pagina'],
   alunos: ['alunos', 'num_alunos', 'numero de alunos', 'n alunos', 'no alunos', 'n de alunos', 'qtd alunos', 'qtde alunos', 'quantidade de alunos', 'total de alunos', 'matriculas'],
+  ensino_medio: ['ensino medio', 'ensino_medio', 'tem ensino medio', 'possui ensino medio', 'medio', 'em'],
   decisor_nome: ['decisor', 'decisor_nome', 'nome do decisor', 'responsavel', 'diretor', 'gestor', 'contato nome', 'nome contato', 'nome do responsavel'],
   decisor_cargo: ['cargo', 'decisor_cargo', 'funcao', 'cargo do decisor', 'cargo contato'],
   decisor_telefone: ['telefone direto', 'decisor_telefone', 'celular', 'whatsapp', 'wpp', 'telefone do decisor', 'contato direto', 'telefone_decisor', 'telefone responsavel'],
@@ -140,7 +142,9 @@ function nextId() {
 function activeFilters() {
   return {
     q: $('#searchInput').value.trim().toLowerCase(),
+    estado: $('#filterEstado').value,
     cidade: $('#filterCidade').value,
+    medio: $('#filterMedio').value,
     etapa: $('#filterEtapa').value,
     inovacao: $('#filterInovacao').value,
   };
@@ -148,7 +152,10 @@ function activeFilters() {
 function applyFilters(list) {
   const f = activeFilters();
   return list.filter(e => {
+    if (f.estado && e.estado !== f.estado) return false;
     if (f.cidade && e.cidade !== f.cidade) return false;
+    if (f.medio === 'sim' && !e.ensino_medio) return false;
+    if (f.medio === 'nao' && e.ensino_medio) return false;
     if (f.etapa && e.etapa !== f.etapa) return false;
     if (f.inovacao && e.inovacao !== f.inovacao) return false;
     if (f.q) {
@@ -181,17 +188,29 @@ function renderStats() {
 
 /* ---------- Popular selects de filtro ---------- */
 function populateFilters() {
-  const cidades = [...new Set(escolas.map(e => e.cidade).filter(Boolean))].sort();
+  const ufSel = $('#filterEstado'), cSel = $('#filterCidade'),
+        eSel = $('#filterEtapa'), iSel = $('#filterInovacao');
+  const keepUF = ufSel.value, keepC = cSel.value, keepE = eSel.value, keepI = iSel.value;
+
+  const estados = [...new Set(escolas.map(e => e.estado).filter(Boolean))].sort();
+  // Cidades acompanham o estado selecionado (se houver)
+  const cidades = [...new Set(escolas
+    .filter(e => !keepUF || e.estado === keepUF)
+    .map(e => e.cidade).filter(Boolean))].sort();
   const inov = [...new Set(escolas.map(e => e.inovacao).filter(Boolean))];
-  const cSel = $('#filterCidade'), eSel = $('#filterEtapa'), iSel = $('#filterInovacao');
-  const keepC = cSel.value, keepE = eSel.value, keepI = iSel.value;
+
+  ufSel.innerHTML = '<option value="">Todos os estados</option>' +
+    estados.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('');
   cSel.innerHTML = '<option value="">Todas as cidades</option>' +
     cidades.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
   eSel.innerHTML = '<option value="">Todas as etapas</option>' +
     ETAPAS.map(s => `<option value="${s.id}">${esc(s.label)}</option>`).join('');
   iSel.innerHTML = '<option value="">Toda inovação</option>' +
     inov.map(i => `<option value="${esc(i)}">${esc(i)}</option>`).join('');
-  cSel.value = keepC; eSel.value = keepE; iSel.value = keepI;
+
+  ufSel.value = keepUF; eSel.value = keepE; iSel.value = keepI;
+  // Mantém a cidade só se ainda existir na lista filtrada pelo estado
+  cSel.value = cidades.includes(keepC) ? keepC : '';
 }
 
 /* ---------- Render: Tabela ---------- */
@@ -224,7 +243,13 @@ function etapaSelect(e) {
 
 function renderTable() {
   const filtered = applyFilters(escolas);
+  const prioCE = $('#prioCE') && $('#prioCE').checked;
   filtered.sort((a, b) => {
+    // Ceará sempre no topo quando a opção está ligada
+    if (prioCE) {
+      const ca = a.estado === 'CE' ? 0 : 1, cb = b.estado === 'CE' ? 0 : 1;
+      if (ca !== cb) return ca - cb;
+    }
     let va = a[sortKey], vb = b[sortKey];
     if (typeof va === 'string') { va = va.toLowerCase(); vb = (vb || '').toLowerCase(); }
     va = va ?? ''; vb = vb ?? '';
@@ -235,26 +260,29 @@ function renderTable() {
 
   const body = $('#tableBody');
   if (!filtered.length) {
-    body.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+    body.innerHTML = `<tr><td colspan="9"><div class="empty-state">
       <div class="big">🔍</div>Nenhuma escola encontrada com esses filtros.</div></td></tr>`;
     updateSortHeaders();
     return;
   }
 
   body.innerHTML = filtered.map(e => {
-    const local = [e.bairro, e.cidade].filter(Boolean).join(' · ') || esc(e.cidade) || '—';
     return `<tr data-id="${e.id}">
       <td>
         <div class="school-name" data-open="${e.id}">${esc(e.nome)}</div>
         ${e.observacoes ? `<div class="school-sub">${esc(e.observacoes.slice(0, 60))}${e.observacoes.length > 60 ? '…' : ''}</div>` : ''}
       </td>
-      <td><span class="muted">${esc(local)}</span></td>
+      <td>
+        <div>${esc(e.cidade || '—')}${e.estado ? `<span class="uf-chip">${esc(e.estado)}</span>` : ''}</div>
+        ${e.bairro ? `<div class="school-sub">${esc(e.bairro)}</div>` : ''}
+      </td>
       <td>
         ${e.decisor_nome ? `<div class="decisor-name">${esc(e.decisor_nome)}</div>
           <div class="decisor-cargo">${esc(e.decisor_cargo || '')}</div>` : '<span class="muted">—</span>'}
       </td>
       <td>${contactCell(e)}</td>
       <td>${e.alunos ? Number(e.alunos).toLocaleString('pt-BR') : '<span class="muted">—</span>'}</td>
+      <td>${e.ensino_medio ? '<span class="ym-badge yes">Sim</span>' : '<span class="ym-badge no">Não</span>'}</td>
       <td><span class="score-badge" style="background:${scoreColor(e.score)}">${e.score || 0}</span></td>
       <td>${etapaSelect(e)}</td>
       <td>
@@ -372,8 +400,12 @@ function openDrawer(id) {
           <div class="field"><label>Endereço</label><input name="endereco" value="${esc(d.endereco || '')}" /></div>
           <div class="field-row">
             <div class="field"><label>Alunos</label><input name="alunos" type="number" min="0" value="${d.alunos ?? ''}" /></div>
-            <div class="field"><label>Site</label><input name="site" value="${esc(d.site || '')}" /></div>
+            <div class="field"><label>Ensino médio</label><select name="ensino_medio">
+              <option value="sim" ${d.ensino_medio ? 'selected' : ''}>Sim</option>
+              <option value="nao" ${!d.ensino_medio ? 'selected' : ''}>Não</option>
+            </select></div>
           </div>
+          <div class="field"><label>Site</label><input name="site" value="${esc(d.site || '')}" /></div>
         </div>
 
         <div class="detail-block">
@@ -443,6 +475,7 @@ function saveForm(id) {
   obj.alunos = obj.alunos ? parseInt(obj.alunos, 10) : null;
   obj.score = obj.score ? parseInt(obj.score, 10) : 0;
   obj.nota_enem = obj.nota_enem ? parseFloat(String(obj.nota_enem).replace(',', '.')) : null;
+  obj.ensino_medio = obj.ensino_medio === 'sim';
 
   if (id) {
     const e = escolas.find(x => x.id === id);
@@ -450,7 +483,6 @@ function saveForm(id) {
     toast('Escola atualizada');
   } else {
     obj.id = nextId();
-    obj.ensino_medio = true;
     escolas.push(obj);
     toast('Escola adicionada');
   }
@@ -493,6 +525,7 @@ function exportCSV() {
   const head = CAMPOS.join(';');
   const rows = escolas.map(e => CAMPOS.map(c => {
     if (c === 'etapa') return csvCell(etapaById(e.etapa).label);
+    if (c === 'ensino_medio') return csvCell(e.ensino_medio ? 'Sim' : 'Não');
     return csvCell(e[c] == null ? '' : e[c]);
   }).join(';'));
   download('escolas-prospeccao.csv', '﻿' + [head, ...rows].join('\r\n'), 'text/csv;charset=utf-8');
@@ -502,7 +535,7 @@ function downloadTemplate() {
   const exemplo = {
     nome: 'Colégio Exemplo', cidade: 'Fortaleza', estado: 'CE', bairro: 'Aldeota',
     endereco: 'Av. Exemplo, 100', telefone_escola: '(85) 3000-0000', site: 'https://exemplo.com.br',
-    alunos: '1200', decisor_nome: 'Maria Silva', decisor_cargo: 'Diretora',
+    alunos: '1200', ensino_medio: 'Sim', decisor_nome: 'Maria Silva', decisor_cargo: 'Diretora',
     decisor_telefone: '(85) 99999-0000', inovacao: 'Alta', score: '80', nota_enem: '',
     etapa: 'Escola identificada', observacoes: 'Escola de referência no bairro', notas: '',
   };
@@ -569,6 +602,7 @@ function parseCSV(text) {
   return rows;
 }
 function toNum(v) { const n = parseInt(String(v).replace(/\D/g, ''), 10); return isNaN(n) ? null : n; }
+function toBool(v) { return ['sim', 's', 'true', '1', 'x', 'yes', 'possui', 'tem'].includes(normHeader(v)); }
 function toEnem(v) {
   let s = String(v).trim(); if (!s) return null;
   if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
@@ -596,6 +630,7 @@ function importCSV(file) {
       });
       if (!rec.nome) continue;
       if ('alunos' in rec) rec.alunos = toNum(rec.alunos);
+      if ('ensino_medio' in rec) rec.ensino_medio = toBool(rec.ensino_medio);
       if ('score' in rec) rec.score = toNum(rec.score) || 0;
       if ('nota_enem' in rec) rec.nota_enem = toEnem(rec.nota_enem);
       rec.etapa = rec.etapa ? (ETAPA_LOOKUP[normHeader(rec.etapa)] || ETAPA_INICIAL) : ETAPA_INICIAL;
@@ -686,11 +721,17 @@ function bindEvents() {
   }));
 
   // Filtros
-  ['#searchInput', '#filterCidade', '#filterEtapa', '#filterInovacao'].forEach(sel =>
-    $(sel).addEventListener('input', () => {
-      renderTable();
-      if ($('#view-kanban').classList.contains('active')) renderKanban();
-    }));
+  const refilter = () => {
+    populateFilters();               // cidades acompanham o estado selecionado
+    renderTable();
+    if ($('#view-kanban').classList.contains('active')) renderKanban();
+  };
+  ['#searchInput', '#filterEstado', '#filterCidade', '#filterMedio', '#filterEtapa', '#filterInovacao']
+    .forEach(sel => $(sel).addEventListener('input', refilter));
+  $('#prioCE').addEventListener('change', () => {
+    renderTable();
+    if ($('#view-kanban').classList.contains('active')) renderKanban();
+  });
 
   // Ordenação
   $$('thead th[data-sort]').forEach(th => th.addEventListener('click', () => {

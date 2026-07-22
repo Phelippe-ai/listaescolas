@@ -15,8 +15,14 @@ Abra o arquivo `index.html` no navegador (duplo clique) ou publique numa URL
 
 ### Aba **Lista**
 - **Busca** por nome da escola, decisor ou bairro.
-- **Filtros** por cidade, etapa do funil e perfil de inovação.
-- **Ordenação** clicando nos cabeçalhos (escola, alunos, score, etapa…).
+- **Filtros** por **estado (UF)**, **cidade**, **ensino médio**, etapa do funil e
+  perfil de inovação. Ao escolher um estado, a lista de cidades se ajusta
+  automaticamente àquele estado.
+- **🦅 Ceará primeiro** — quando ligado (padrão), mantém as escolas do Ceará
+  sempre no topo, independentemente da ordenação escolhida.
+- Coluna **Médio** mostra se a escola tem ensino médio (Sim/Não) — a UF aparece
+  como etiqueta ao lado da cidade.
+- **Ordenação** clicando nos cabeçalhos (escola, alunos, médio, score, etapa…).
 - Botões de **ligar** (☎) e **WhatsApp** (💬) direto em cada telefone.
 - Mude a **etapa** de qualquer escola pelo seletor colorido da linha.
 - Clique no nome da escola (ou no lápis) para **ver/editar** todos os dados e
