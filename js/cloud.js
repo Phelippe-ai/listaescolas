@@ -81,9 +81,10 @@ const Cloud = {
     if (error) throw error;
   },
 
-  // Apaga tudo e insere a lista (usado em substituir / restaurar / semear)
+  // Apaga tudo e insere a lista (usado em substituir / restaurar / semear).
+  // Todos os ids são positivos, então "id >= 0" cobre a tabela inteira.
   async replaceAll(list) {
-    const { error: delErr } = await this.client.from('escolas').delete().gte('id', 0).lt('id', 1e19);
+    const { error: delErr } = await this.client.from('escolas').delete().gte('id', 0);
     if (delErr) throw delErr;
     await this.insertMany(list);
   },
