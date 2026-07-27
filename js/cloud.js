@@ -17,7 +17,7 @@ const Cloud = {
   // Colunas da tabela "escolas" (espelham os campos usados na app)
   cols: ['id', 'nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola',
     'site', 'alunos', 'ensino_medio', 'decisor_nome', 'decisor_cargo', 'decisor_telefone',
-    'inovacao', 'score', 'nota_enem', 'etapa', 'observacoes', 'notas'],
+    'inovacao', 'score', 'nota_enem', 'etapa', 'proximo_passo', 'observacoes', 'notas'],
 
   configured() {
     return !!(window.SUPABASE_URL && window.SUPABASE_ANON_KEY && window.supabase);
