@@ -23,6 +23,7 @@ create table if not exists public.escolas (
   score            integer default 0,
   nota_enem        numeric,
   etapa            text default 'identificada',
+  proximo_passo    text,
   observacoes      text,
   notas            text,
   updated_at       timestamptz default now(),

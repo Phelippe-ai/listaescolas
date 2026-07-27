@@ -6,6 +6,8 @@
   <title>Fala Tio — Prospecção de Escolas</title>
   <meta name="description" content="Plataforma para gerir a prospecção ativa de escolas: lista interativa de contatos e funil Kanban." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -13,9 +15,10 @@
     <div class="header-inner">
       <div class="header-top">
         <div class="brand">
-          <div class="brand-logo">FT</div>
+          <img src="assets/falatio-logo.png" alt="Fala Tio" class="brand-logo-img" />
+          <span class="brand-sep"></span>
           <div>
-            <h1>Fala Tio · Prospecção</h1>
+            <h1>Prospecção</h1>
             <p>Gestão de prospecção ativa de escolas</p>
           </div>
         </div>
@@ -96,6 +99,13 @@
 
     <!-- ===== KANBAN ===== -->
     <section class="view" id="view-kanban">
+      <div class="toolbar">
+        <div class="search">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="kanbanSearch" placeholder="Buscar escola, decisor, bairro…" />
+        </div>
+        <span class="prio-legend">⭐ = tem próximos passos (prioridade)</span>
+      </div>
       <div class="kanban" id="kanban"></div>
     </section>
   </main>
@@ -110,8 +120,8 @@
   <!-- Tela de login (só aparece quando o banco na nuvem está ativo) -->
   <div class="login-screen" id="loginScreen">
     <form class="login-card" id="loginForm">
-      <div class="brand-logo">FT</div>
-      <h2>Fala Tio · Prospecção</h2>
+      <img src="assets/falatio-logo.png" alt="Fala Tio" class="login-logo" />
+      <h2>Prospecção de Escolas</h2>
       <p>Entre para acessar a base compartilhada do time</p>
       <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" required />
       <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password" required />

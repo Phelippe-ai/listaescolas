@@ -4,26 +4,28 @@
    ========================================================================== */
 
 :root {
-  --primary: #6C3CE1;
-  --primary-light: #8B5CF6;
-  --primary-dark: #4C1D95;
-  --primary-soft: #EFEAFE;
-  --accent: #F59E0B;
+  /* Identidade visual Fala Tio */
+  --primary: #0022D1;        /* Azul Fala Tio */
+  --primary-light: #3651E0;
+  --primary-dark: #071056;   /* Azul de apoio (marinho) */
+  --primary-soft: #E6EAFF;
+  --accent: #FF6428;         /* Laranja Fala Tio */
+  --accent-soft: #FFE7DC;
   --accent2: #10B981;
   --danger: #EF4444;
   --danger-soft: #FEE2E2;
 
-  --bg: #F6F5FC;
+  --bg: #F2F4FB;
   --card: #FFFFFF;
-  --card-2: #FBFAFF;
-  --text: #1E1B4B;
-  --text-muted: #6B7280;
-  --border: #E7E5F0;
-  --border-strong: #D8D4EA;
+  --card-2: #F5F7FD;
+  --text: #071056;
+  --text-muted: #5A648A;
+  --border: #E2E6F5;
+  --border-strong: #CBD3EC;
 
-  --shadow-sm: 0 1px 3px rgba(76, 29, 149, 0.08);
-  --shadow: 0 6px 24px rgba(108, 60, 225, 0.10);
-  --shadow-lg: 0 16px 48px rgba(76, 29, 149, 0.18);
+  --shadow-sm: 0 1px 3px rgba(7, 16, 86, 0.08);
+  --shadow: 0 6px 24px rgba(0, 34, 209, 0.10);
+  --shadow-lg: 0 16px 48px rgba(7, 16, 86, 0.22);
   --radius: 14px;
   --radius-sm: 10px;
 
@@ -39,37 +41,34 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #14121F;
-    --card: #1D1A2B;
-    --card-2: #232032;
-    --text: #ECEAF6;
-    --text-muted: #A29FB8;
-    --border: #302C42;
-    --border-strong: #3B3652;
-    --primary-soft: #2A2141;
-    --danger-soft: #3A1E24;
+    --primary: #4A63F0; --primary-light: #6E84F5;
+    --bg: #080B22; --card: #0F1436; --card-2: #151B41;
+    --text: #EAECFB; --text-muted: #99A2CC; --border: #232A55;
+    --border-strong: #2F3873; --primary-soft: #1A2150; --danger-soft: #3A1E24;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-    --shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
   }
 }
 :root[data-theme="dark"] {
-  --bg: #14121F; --card: #1D1A2B; --card-2: #232032;
-  --text: #ECEAF6; --text-muted: #A29FB8; --border: #302C42;
-  --border-strong: #3B3652; --primary-soft: #2A2141; --danger-soft: #3A1E24;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow: 0 6px 24px rgba(0,0,0,.4);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,.5);
+  --primary: #4A63F0; --primary-light: #6E84F5;
+  --bg: #080B22; --card: #0F1436; --card-2: #151B41;
+  --text: #EAECFB; --text-muted: #99A2CC; --border: #232A55;
+  --border-strong: #2F3873; --primary-soft: #1A2150; --danger-soft: #3A1E24;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.4); --shadow: 0 6px 24px rgba(0,0,0,.45);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,.55);
 }
 :root[data-theme="light"] {
-  --bg: #F6F5FC; --card: #FFFFFF; --card-2: #FBFAFF;
-  --text: #1E1B4B; --text-muted: #6B7280; --border: #E7E5F0;
-  --border-strong: #D8D4EA; --primary-soft: #EFEAFE; --danger-soft: #FEE2E2;
+  --primary: #0022D1; --primary-light: #3651E0;
+  --bg: #F2F4FB; --card: #FFFFFF; --card-2: #F5F7FD;
+  --text: #071056; --text-muted: #5A648A; --border: #E2E6F5;
+  --border-strong: #CBD3EC; --primary-soft: #E6EAFF; --danger-soft: #FEE2E2;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Montserrat', 'Segoe UI', system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -84,9 +83,14 @@ header {
   overflow: hidden;
 }
 header::before {
-  content: ''; position: absolute; top: -70px; right: -50px;
-  width: 260px; height: 260px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  content: ''; position: absolute; top: -80px; right: -40px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,100,40,0.35) 0%, rgba(255,100,40,0) 70%);
+}
+header::after {
+  content: ''; position: absolute; bottom: -120px; left: 25%;
+  width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 70%);
 }
 .header-inner {
   max-width: 1360px; margin: 0 auto; padding: 20px 28px 0;
@@ -104,6 +108,9 @@ header::before {
 }
 .brand h1 { font-size: 1.3rem; font-weight: 800; line-height: 1.1; }
 .brand p { font-size: .8rem; opacity: .85; font-weight: 500; }
+.brand-logo-img { height: 38px; width: auto; display: block; filter: drop-shadow(0 2px 5px rgba(0,0,0,.3)); }
+.brand-sep { width: 1.5px; height: 32px; background: rgba(255,255,255,.32); border-radius: 2px; }
+.login-logo { width: 200px; max-width: 72%; height: auto; margin: 0 auto 8px; display: block; }
 
 .header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
@@ -296,6 +303,28 @@ tbody tr:last-child td { border-bottom: none; }
   font-size: .68rem; font-weight: 700; color: var(--primary); background: var(--primary-soft);
   padding: 2px 8px; border-radius: 6px; margin-right: auto;
 }
+.kcard.has-next { box-shadow: 0 0 0 1.5px var(--accent), var(--shadow-sm); }
+
+/* Estrela de prioridade (tem próximos passos) */
+.star { color: var(--accent); }
+.school-name .star { margin-right: 4px; }
+
+/* Bloco "próximos passos" no card do Kanban */
+.kcard-next {
+  margin-top: 9px; background: rgba(255,100,40,.12); border: 1px solid rgba(255,100,40,.35);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 7px 9px;
+  font-size: .78rem; color: var(--text); line-height: 1.45; cursor: text; white-space: pre-wrap;
+}
+.kcard-next .np-label { display: block; font-size: .64rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--accent); margin-bottom: 2px; }
+.kcard-addnext {
+  margin-top: 9px; width: 100%; text-align: left; font-family: inherit;
+  font-size: .74rem; color: var(--text-muted); background: transparent;
+  border: 1px dashed var(--border-strong); border-radius: 8px; padding: 6px 9px; cursor: pointer; transition: .15s;
+}
+.kcard-addnext:hover { border-color: var(--accent); color: var(--accent); }
+
+.prio-legend { font-size: .76rem; color: var(--text-muted); font-weight: 600; margin-left: auto; align-self: center; }
 
 /* ===== MODAL / DRAWER ===== */
 .overlay {

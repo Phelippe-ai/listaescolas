@@ -30,13 +30,13 @@ const etapaById = id => ETAPAS.find(e => e.id === id) || ETAPAS[0];
 /* Campos exportados/importados e seus rótulos amigáveis */
 const CAMPOS = ['nome', 'cidade', 'estado', 'bairro', 'endereco', 'telefone_escola', 'site',
   'alunos', 'ensino_medio', 'decisor_nome', 'decisor_cargo', 'decisor_telefone', 'inovacao',
-  'score', 'nota_enem', 'etapa', 'observacoes', 'notas'];
+  'score', 'nota_enem', 'etapa', 'proximo_passo', 'observacoes', 'notas'];
 const CAMPO_LABEL = {
   nome: 'Escola', cidade: 'Cidade', estado: 'UF', bairro: 'Bairro', endereco: 'Endereço',
   telefone_escola: 'Tel. escola', site: 'Site', alunos: 'Alunos', ensino_medio: 'Ensino médio',
   decisor_nome: 'Decisor', decisor_cargo: 'Cargo', decisor_telefone: 'Tel. direto',
   inovacao: 'Inovação', score: 'Score', nota_enem: 'Nota ENEM', etapa: 'Etapa',
-  observacoes: 'Observações', notas: 'Notas',
+  proximo_passo: 'Próximos passos', observacoes: 'Observações', notas: 'Notas',
 };
 
 /* Nomes de coluna aceitos na importação (o sistema reconhece variações comuns de planilha) */
@@ -57,6 +57,7 @@ const HEADER_ALIASES = {
   score: ['score', 'pontuacao', 'prioridade', 'score_prioridade', 'nota prioridade'],
   nota_enem: ['nota enem', 'nota_enem', 'enem', 'media enem'],
   etapa: ['etapa', 'status', 'funil', 'fase', 'estagio', 'etapa do funil'],
+  proximo_passo: ['proximo passo', 'proximos passos', 'proximo_passo', 'proxima acao', 'proximas acoes', 'next step'],
   observacoes: ['observacoes', 'obs', 'observacao', 'notas gerais', 'comentarios'],
   notas: ['notas', 'historico', 'anotacoes', 'notas prospeccao', 'notas da prospeccao'],
 };
@@ -122,10 +123,12 @@ function waLink(phone) {
 }
 function scoreColor(score) {
   if (score >= 90) return '#10B981';
-  if (score >= 75) return '#3B82F6';
-  if (score >= 60) return '#F59E0B';
+  if (score >= 75) return '#0022D1';
+  if (score >= 60) return '#FF6428';
   return '#94A3B8';
 }
+// Escola tem "próximos passos" preenchido? (usado para prioridade / ⭐)
+const hasNext = e => (e.proximo_passo && String(e.proximo_passo).trim()) ? 1 : 0;
 let toastTimer;
 function toast(msg) {
   const t = $('#toast');
@@ -257,6 +260,9 @@ function renderTable() {
   const filtered = applyFilters(escolas);
   const prioCE = $('#prioCE') && $('#prioCE').checked;
   filtered.sort((a, b) => {
+    // Escolas com "próximos passos" (⭐) sempre no topo — são prioridade
+    const na = hasNext(a), nb = hasNext(b);
+    if (na !== nb) return nb - na;
     // Ceará sempre no topo quando a opção está ligada
     if (prioCE) {
       const ca = a.estado === 'CE' ? 0 : 1, cb = b.estado === 'CE' ? 0 : 1;
@@ -281,8 +287,10 @@ function renderTable() {
   body.innerHTML = filtered.map(e => {
     return `<tr data-id="${e.id}">
       <td>
-        <div class="school-name" data-open="${e.id}">${esc(e.nome)}</div>
-        ${e.observacoes ? `<div class="school-sub">${esc(e.observacoes.slice(0, 60))}${e.observacoes.length > 60 ? '…' : ''}</div>` : ''}
+        <div class="school-name" data-open="${e.id}">${hasNext(e) ? '<span class="star">⭐</span>' : ''}${esc(e.nome)}</div>
+        ${hasNext(e)
+          ? `<div class="school-sub" style="color:var(--accent);font-weight:600">${esc(e.proximo_passo.trim().slice(0, 70))}${e.proximo_passo.trim().length > 70 ? '…' : ''}</div>`
+          : (e.observacoes ? `<div class="school-sub">${esc(e.observacoes.slice(0, 60))}${e.observacoes.length > 60 ? '…' : ''}</div>` : '')}
       </td>
       <td>
         <div>${esc(e.cidade || '—')}${e.estado ? `<span class="uf-chip">${esc(e.estado)}</span>` : ''}</div>
@@ -321,7 +329,8 @@ function renderKanban() {
   const filtered = applyFilters(escolas);
   const board = $('#kanban');
   board.innerHTML = ETAPAS.map(st => {
-    const cards = filtered.filter(e => e.etapa === st.id);
+    const cards = filtered.filter(e => e.etapa === st.id)
+      .sort((a, b) => (hasNext(b) - hasNext(a)) || ((b.score || 0) - (a.score || 0)));
     return `<div class="kanban-col" data-etapa="${st.id}">
       <div class="kanban-col-head">
         <span class="dot" style="background:${st.hex}"></span>
@@ -338,15 +347,20 @@ function renderKanban() {
 
 function kcard(e, st) {
   const phone = e.decisor_telefone || e.telefone_escola;
-  return `<div class="kcard" draggable="true" data-id="${e.id}" style="border-left-color:${st.hex}">
+  const np = (e.proximo_passo || '').trim();
+  const nextBlock = np
+    ? `<div class="kcard-next" data-next="${e.id}" title="Clique para editar"><span class="np-label">⭐ Próximos passos</span>${esc(np)}</div>`
+    : `<button class="kcard-addnext" data-next="${e.id}">＋ Próximos passos</button>`;
+  return `<div class="kcard ${np ? 'has-next' : ''}" draggable="true" data-id="${e.id}" style="border-left-color:${st.hex}">
     <div class="kcard-title">
-      <span>${esc(e.nome)}</span>
+      <span>${np ? '<span class="star">⭐</span>' : ''}${esc(e.nome)}</span>
       <span class="score" style="background:${scoreColor(e.score)}">${e.score || 0}</span>
     </div>
     <div class="kcard-meta">
       ${e.decisor_nome ? `👤 <strong>${esc(e.decisor_nome)}</strong>${e.decisor_cargo ? ' · ' + esc(e.decisor_cargo) : ''}<br>` : ''}
       ${phone ? `📞 ${esc(phone)}` : '<span class="muted">Sem contato</span>'}
     </div>
+    ${nextBlock}
     <div class="kcard-foot">
       <span class="city-tag">${esc(e.cidade || '—')}</span>
       ${phone ? `<a class="icon-link wpp" href="${waLink(phone)}" target="_blank" rel="noopener" title="WhatsApp" onclick="event.stopPropagation()">${icoWpp()}</a>` : ''}
@@ -440,6 +454,7 @@ function openDrawer(id) {
             </select></div>
             <div class="field"><label>Score (0-100)</label><input name="score" type="number" min="0" max="100" value="${d.score ?? 60}" /></div>
           </div>
+          <div class="field"><label>⭐ Próximos passos (prioridade)</label><textarea name="proximo_passo" placeholder="Ex.: Ligar para a diretora às 15h · Reunião 17h (online) · Enviar proposta">${esc(d.proximo_passo || '')}</textarea></div>
           <div class="field-row">
             <div class="field"><label>Perfil de inovação</label><input name="inovacao" value="${esc(d.inovacao || '')}" /></div>
             <div class="field"><label>Nota ENEM</label><input name="nota_enem" value="${esc(d.nota_enem ?? '')}" /></div>
@@ -529,6 +544,44 @@ function closeDrawer() {
   $('#drawer').classList.remove('open');
 }
 
+// Editor rápido de "próximos passos" (a partir do card do Kanban)
+function editProximoPasso(id) {
+  const e = escolas.find(x => x.id === id);
+  if (!e) return;
+  const modal = $('#modal');
+  modal.innerHTML = `
+    <h2>⭐ Próximos passos</h2>
+    <p class="modal-sub">${esc(e.nome)}</p>
+    <div class="field">
+      <textarea id="npText" rows="4" placeholder="Ex.: Ligar para a diretora às 15h · Reunião 17h (online) · Enviar proposta">${esc(e.proximo_passo || '')}</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="npSave">💾 Salvar</button>
+      ${e.proximo_passo ? '<button class="btn btn-outline" id="npClear">Remover</button>' : ''}
+      <button class="btn btn-outline" id="npCancel">Cancelar</button>
+    </div>`;
+  openModal();
+  $('#npCancel').onclick = closeModal;
+  $('#npSave').onclick = () => {
+    e.proximo_passo = $('#npText').value.trim();
+    saveData();
+    cloudSave(e, 'editou', 'Atualizou próximos passos');
+    closeModal();
+    renderAll();
+    toast('Próximos passos salvos');
+  };
+  const clr = $('#npClear');
+  if (clr) clr.onclick = () => {
+    e.proximo_passo = '';
+    saveData();
+    cloudSave(e, 'editou', 'Removeu próximos passos');
+    closeModal();
+    renderAll();
+    toast('Próximos passos removidos');
+  };
+  setTimeout(() => { const t = $('#npText'); if (t) t.focus(); }, 60);
+}
+
 /* ---------- Render geral ---------- */
 function renderAll() {
   renderStats();
@@ -559,7 +612,8 @@ function downloadTemplate() {
     endereco: 'Av. Exemplo, 100', telefone_escola: '(85) 3000-0000', site: 'https://exemplo.com.br',
     alunos: '1200', ensino_medio: 'Sim', decisor_nome: 'Maria Silva', decisor_cargo: 'Diretora',
     decisor_telefone: '(85) 99999-0000', inovacao: 'Alta', score: '80', nota_enem: '',
-    etapa: 'Escola identificada', observacoes: 'Escola de referência no bairro', notas: '',
+    etapa: 'Escola identificada', proximo_passo: 'Ligar para a diretora às 15h',
+    observacoes: 'Escola de referência no bairro', notas: '',
   };
   const csv = '﻿' + CAMPOS.join(';') + '\r\n' + CAMPOS.map(c => csvCell(exemplo[c])).join(';');
   download('modelo-escolas.csv', csv, 'text/csv;charset=utf-8');
@@ -758,12 +812,20 @@ function bindEvents() {
 
   // Filtros
   const refilter = () => {
+    const q = $('#searchInput').value;
+    if ($('#kanbanSearch') && $('#kanbanSearch').value !== q) $('#kanbanSearch').value = q;
     populateFilters();               // cidades acompanham o estado selecionado
     renderTable();
     if ($('#view-kanban').classList.contains('active')) renderKanban();
   };
   ['#searchInput', '#filterEstado', '#filterCidade', '#filterMedio', '#filterEtapa', '#filterInovacao']
     .forEach(sel => $(sel).addEventListener('input', refilter));
+  // Busca no Kanban (sincroniza com a busca da lista)
+  $('#kanbanSearch').addEventListener('input', () => {
+    $('#searchInput').value = $('#kanbanSearch').value;
+    renderTable();
+    renderKanban();
+  });
   $('#prioCE').addEventListener('change', () => {
     renderTable();
     if ($('#view-kanban').classList.contains('active')) renderKanban();
@@ -777,8 +839,10 @@ function bindEvents() {
     renderTable();
   }));
 
-  // Delegação: abrir drawer + mudar etapa via select da tabela
+  // Delegação: editar próximos passos + abrir drawer
   document.body.addEventListener('click', ev => {
+    const nextBtn = ev.target.closest('[data-next]');
+    if (nextBtn) { ev.stopPropagation(); editProximoPasso(+nextBtn.dataset.next); return; }
     const opener = ev.target.closest('[data-open]');
     if (opener) { openDrawer(+opener.dataset.open); }
   });
