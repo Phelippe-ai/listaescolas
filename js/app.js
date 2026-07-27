@@ -137,6 +137,18 @@ function toast(msg) {
 function nextId() {
   return escolas.reduce((m, e) => Math.max(m, e.id || 0), 0) + 1;
 }
+// Gera um id único. Na nuvem usa base de tempo para não colidir entre usuários.
+let _idSeq = 0;
+function newId() {
+  if (!Cloud.active) return nextId();
+  return Date.now() * 100000 + (_idSeq++);
+}
+// Salva uma escola na nuvem (se ativa) e registra a atividade. Não bloqueia a UI.
+function cloudSave(e, acao, detalhe) {
+  if (!Cloud.active) return;
+  Cloud.upsert(e).catch(err => toast('Falha ao salvar na nuvem: ' + (err.message || err)));
+  if (acao) Cloud.logAtividade(acao, e, detalhe);
+}
 
 /* ---------- Filtros ativos ---------- */
 function activeFilters() {
@@ -362,9 +374,11 @@ function attachDnD() {
       const novaEtapa = col.dataset.etapa;
       const e = escolas.find(x => x.id === dragId);
       if (e && e.etapa !== novaEtapa) {
+        const prev = e.etapa;
         e.etapa = novaEtapa;
         saveData();
         renderAll();
+        cloudSave(e, 'moveu', `${etapaById(prev).label} → ${etapaById(novaEtapa).label}`);
         toast(`${e.nome} → ${etapaById(novaEtapa).label}`);
       }
       dragId = null;
@@ -477,14 +491,18 @@ function saveForm(id) {
   obj.nota_enem = obj.nota_enem ? parseFloat(String(obj.nota_enem).replace(',', '.')) : null;
   obj.ensino_medio = obj.ensino_medio === 'sim';
 
+  let alvo;
   if (id) {
-    const e = escolas.find(x => x.id === id);
-    Object.assign(e, obj);
+    alvo = escolas.find(x => x.id === id);
+    Object.assign(alvo, obj);
     toast('Escola atualizada');
+    cloudSave(alvo, 'editou', null);
   } else {
-    obj.id = nextId();
+    obj.id = newId();
     escolas.push(obj);
+    alvo = obj;
     toast('Escola adicionada');
+    cloudSave(alvo, 'adicionou', null);
   }
   saveData();
   closeDrawer();
@@ -497,6 +515,10 @@ function deleteEscola(id) {
   if (!confirm(`Excluir "${e.nome}" da lista? Esta ação não pode ser desfeita.`)) return;
   escolas = escolas.filter(x => x.id !== id);
   saveData();
+  if (Cloud.active) {
+    Cloud.remove(id).catch(err => toast('Falha ao excluir na nuvem: ' + (err.message || err)));
+    Cloud.logAtividade('excluiu', e, null);
+  }
   closeDrawer();
   renderAll();
   toast('Escola excluída');
@@ -666,18 +688,28 @@ function showImportDialog(records, meta) {
     if (!confirm(`Isso vai APAGAR as ${escolas.length} escolas atuais e substituir pelas ${records.length} da planilha. Continuar?`)) return;
     escolas = records.map((r, i) => ({ id: i + 1, ensino_medio: true, notas: '', ...r }));
     saveData(); closeModal(); renderAll();
+    if (Cloud.active) {
+      Cloud.replaceAll(escolas).catch(err => toast('Falha ao sincronizar: ' + (err.message || err)));
+      Cloud.logAtividade('importou', null, `Substituiu a lista por ${escolas.length} escolas`);
+    }
     toast(`${escolas.length} escolas importadas (lista substituída)`);
   };
   $('#impAdd').onclick = () => {
     const existentes = new Set(escolas.map(e => normHeader(e.nome)));
-    let id = nextId(), add = 0, skip = 0;
+    const novas = [];
+    let add = 0, skip = 0;
     records.forEach(r => {
       const chave = normHeader(r.nome);
       if (existentes.has(chave)) { skip++; return; }
-      escolas.push({ id: id++, ensino_medio: true, notas: '', ...r });
+      const nova = { id: newId(), ensino_medio: true, notas: '', ...r };
+      escolas.push(nova); novas.push(nova);
       existentes.add(chave); add++;
     });
     saveData(); closeModal(); renderAll();
+    if (Cloud.active && novas.length) {
+      Cloud.insertMany(novas).catch(err => toast('Falha ao sincronizar: ' + (err.message || err)));
+      Cloud.logAtividade('importou', null, `Adicionou ${novas.length} escolas`);
+    }
     toast(`${add} escola(s) adicionada(s)${skip ? ` · ${skip} já existiam (ignoradas)` : ''}`);
   };
 }
@@ -687,6 +719,10 @@ function resetData() {
   if (!confirm('Restaurar os dados originais? Todas as suas edições, notas e movimentações no funil serão perdidas.')) return;
   escolas = JSON.parse(JSON.stringify(SEED_ESCOLAS));
   saveData();
+  if (Cloud.active) {
+    Cloud.replaceAll(escolas).catch(err => toast('Falha ao sincronizar: ' + (err.message || err)));
+    Cloud.logAtividade('importou', null, 'Restaurou os dados originais');
+  }
   renderAll();
   toast('Dados originais restaurados');
 }
@@ -751,10 +787,12 @@ function bindEvents() {
     if (sel) {
       const e = escolas.find(x => x.id === +sel.dataset.id);
       if (e) {
+        const prev = e.etapa;
         e.etapa = sel.value;
         sel.style.backgroundColor = etapaById(e.etapa).hex;
         saveData();
         renderStats();
+        cloudSave(e, 'moveu', `${etapaById(prev).label} → ${etapaById(e.etapa).label}`);
         toast(`${e.nome} → ${etapaById(e.etapa).label}`);
       }
     }
@@ -780,11 +818,109 @@ function bindEvents() {
 }
 function closeMenu() { const m = $('#dataMenu'); if (m) m.classList.remove('open'); }
 
+/* ---------- Modo nuvem (Supabase) ---------- */
+async function enterCloud() {
+  hideLogin();
+  showCloudChrome();
+  try {
+    let rows = await Cloud.fetchAll();
+    if (!rows.length) {
+      // Primeira vez: semeia o banco com as escolas da pesquisa
+      const seed = JSON.parse(JSON.stringify(SEED_ESCOLAS));
+      await Cloud.replaceAll(seed);
+      await Cloud.logAtividade('importou', null, `Base inicial com ${seed.length} escolas`);
+      rows = await Cloud.fetchAll();
+    }
+    escolas = rows;
+    renderAll();
+    // Tempo real: qualquer mudança de qualquer aparelho recarrega a lista
+    Cloud.subscribe(async () => {
+      try { escolas = await Cloud.fetchAll(); renderAll(); } catch (e) { console.warn(e); }
+    });
+  } catch (e) {
+    toast('Erro ao carregar dados da nuvem: ' + (e.message || e));
+  }
+}
+function showLogin() { $('#loginScreen').classList.add('show'); }
+function hideLogin() { $('#loginScreen').classList.remove('show'); }
+function showCloudChrome() {
+  $('#userChip').style.display = '';
+  $('#userEmail').textContent = Cloud.email();
+  $('#btnHistorico').style.display = '';
+}
+function bindCloudEvents() {
+  $('#loginForm').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const email = $('#loginEmail').value.trim();
+    const pass = $('#loginPass').value;
+    const errEl = $('#loginError');
+    const btn = $('#loginBtn');
+    errEl.textContent = '';
+    btn.disabled = true; btn.textContent = 'Entrando…';
+    try {
+      await Cloud.signIn(email, pass);
+      await enterCloud();
+    } catch (e) {
+      errEl.textContent = traduzErroLogin(e);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Entrar';
+    }
+  });
+  $('#btnLogout').addEventListener('click', async () => {
+    try { await Cloud.signOut(); } catch (e) {}
+    location.reload();
+  });
+  $('#btnHistorico').addEventListener('click', abrirHistorico);
+}
+function traduzErroLogin(e) {
+  const m = ((e && e.message) || '').toLowerCase();
+  if (m.includes('invalid login') || m.includes('invalid_credentials')) return 'Email ou senha incorretos.';
+  if (m.includes('not confirmed')) return 'Este email ainda não foi confirmado no Supabase.';
+  if (m.includes('failed to fetch') || m.includes('network')) return 'Sem conexão com o servidor. Tente novamente.';
+  return 'Não foi possível entrar: ' + ((e && e.message) || e);
+}
+async function abrirHistorico() {
+  const modal = $('#modal');
+  modal.innerHTML = `<h2>🕑 Histórico de atividades</h2><p class="modal-sub">Carregando…</p>`;
+  openModal();
+  try {
+    const ats = await Cloud.fetchAtividades(120);
+    const icones = { adicionou: '➕', editou: '✏️', moveu: '🔀', excluiu: '🗑️', importou: '📥' };
+    const itens = ats.map(a => {
+      const quando = a.criado_em ? new Date(a.criado_em).toLocaleString('pt-BR') : '';
+      const ico = icones[a.acao] || '•';
+      return `<div class="hist-item">
+        <div class="hist-ico">${ico}</div>
+        <div class="hist-body">
+          <div class="hist-top"><strong>${esc(a.escola_nome || '—')}</strong> <span class="hist-acao">${esc(a.acao || '')}</span></div>
+          ${a.detalhe ? `<div class="hist-det">${esc(a.detalhe)}</div>` : ''}
+          <div class="hist-meta">${esc(a.usuario || '')}${a.usuario ? ' · ' : ''}${esc(quando)}</div>
+        </div>
+      </div>`;
+    }).join('');
+    modal.innerHTML = `<h2>🕑 Histórico de atividades</h2>
+      <div class="hist-list">${itens || '<p class="modal-sub">Sem atividades ainda.</p>'}</div>
+      <div class="modal-actions"><button class="btn btn-outline" id="histClose">Fechar</button></div>`;
+    $('#histClose').onclick = closeModal;
+  } catch (e) {
+    modal.innerHTML = `<h2>🕑 Histórico</h2><p class="modal-sub">Erro ao carregar: ${esc((e && e.message) || e)}</p>
+      <div class="modal-actions"><button class="btn btn-outline" id="histClose">Fechar</button></div>`;
+    $('#histClose').onclick = closeModal;
+  }
+}
+
 /* ---------- Boot ---------- */
-function init() {
+async function init() {
   initTheme();
-  loadData();
   bindEvents();
-  renderAll();
+  if (await Cloud.init()) {
+    bindCloudEvents();
+    if (Cloud.user) { await enterCloud(); }
+    else { showLogin(); }
+  } else {
+    // Modo local (sem nuvem configurada): comportamento original
+    loadData();
+    renderAll();
+  }
 }
 document.addEventListener('DOMContentLoaded', init);

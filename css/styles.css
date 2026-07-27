@@ -375,6 +375,51 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
 .modal-actions .btn { justify-content: center; padding: 12px; }
 
+/* Login screen */
+.login-screen {
+  position: fixed; inset: 0; z-index: 300; display: none;
+  align-items: center; justify-content: center; padding: 20px;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+}
+.login-screen.show { display: flex; }
+.login-card {
+  background: var(--card); border-radius: 18px; box-shadow: var(--shadow-lg);
+  padding: 34px 30px; width: 370px; max-width: 92vw; text-align: center;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.login-card .brand-logo { margin: 0 auto 4px; width: 54px; height: 54px; font-size: 24px; }
+.login-card h2 { font-size: 1.25rem; font-weight: 800; }
+.login-card p { font-size: .85rem; color: var(--text-muted); margin-bottom: 6px; }
+.login-card input {
+  padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 11px;
+  font-size: .95rem; font-family: inherit; background: var(--card); color: var(--text);
+}
+.login-card input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.login-card .btn { justify-content: center; padding: 12px; margin-top: 4px; }
+.login-error { color: var(--danger); font-size: .82rem; min-height: 1.1em; }
+
+/* User chip (header) */
+.user-chip {
+  display: inline-flex; align-items: center; gap: 8px; color: #fff;
+  background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+  padding: 5px 5px 5px 13px; border-radius: 22px; font-size: .82rem; font-weight: 600;
+}
+.user-chip button {
+  background: rgba(255,255,255,.22); border: none; color: #fff; padding: 5px 12px;
+  border-radius: 16px; font-size: .78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.user-chip button:hover { background: rgba(255,255,255,.36); }
+
+/* Histórico de atividades */
+.hist-list { max-height: 62vh; overflow-y: auto; margin-top: 10px; }
+.hist-item { display: flex; gap: 11px; padding: 11px 4px; border-bottom: 1px solid var(--border); }
+.hist-item:last-child { border-bottom: none; }
+.hist-ico { font-size: 1.15rem; line-height: 1.4; flex-shrink: 0; }
+.hist-top { font-size: .88rem; }
+.hist-acao { color: var(--text-muted); font-size: .8rem; }
+.hist-det { font-size: .82rem; margin-top: 2px; }
+.hist-meta { font-size: .72rem; color: var(--text-muted); margin-top: 3px; }
+
 /* Toast */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
