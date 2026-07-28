@@ -498,7 +498,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ===== Mobile ===== */
 @media (max-width: 680px) {
-  header { background-position: right center; }
+  header { background-position: 88% center; }
   .header-inner { padding: 14px 14px 0; }
   .header-top { gap: 10px; }
   .brand-logo-img { height: 30px; }
