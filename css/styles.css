@@ -77,23 +77,10 @@ body {
 
 /* ===== HEADER ===== */
 header {
-  background:
-    radial-gradient(120% 150% at 12% 0%, #0b2199 0%, rgba(11,33,153,0) 55%),
-    linear-gradient(120deg, #071056 0%, #0a1a7a 45%, #0022D1 100%);
+  background: #071056 url('../assets/header-bg.jpg') center center / cover no-repeat;
   color: #fff;
   position: relative;
   overflow: hidden;
-}
-/* Elementos gráficos curvos em laranja (padrão visual da marca) */
-header::before {
-  content: ''; position: absolute; top: -170px; right: -130px;
-  width: 400px; height: 400px; border-radius: 50%;
-  border: 62px solid var(--accent); opacity: .85; pointer-events: none;
-}
-header::after {
-  content: ''; position: absolute; bottom: -150px; right: 14%;
-  width: 240px; height: 240px; border-radius: 50%;
-  border: 44px solid var(--accent); opacity: .3; pointer-events: none;
 }
 .header-inner {
   max-width: 1360px; margin: 0 auto; padding: 20px 28px 0;
@@ -511,6 +498,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ===== Mobile ===== */
 @media (max-width: 680px) {
+  header { background-position: right center; }
   .header-inner { padding: 14px 14px 0; }
   .header-top { gap: 10px; }
   .brand-logo-img { height: 30px; }
