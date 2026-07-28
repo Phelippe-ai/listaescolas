@@ -351,7 +351,7 @@ function kcard(e, st) {
   const nextBlock = np
     ? `<div class="kcard-next" data-next="${e.id}" title="Clique para editar"><span class="np-label">⭐ Próximos passos</span>${esc(np)}</div>`
     : `<button class="kcard-addnext" data-next="${e.id}">＋ Próximos passos</button>`;
-  return `<div class="kcard ${np ? 'has-next' : ''}" draggable="true" data-id="${e.id}" style="border-left-color:${st.hex}">
+  return `<div class="kcard ${np ? 'has-next' : ''}" data-id="${e.id}" style="border-left-color:${st.hex}">
     <div class="kcard-title">
       <span>${np ? '<span class="star">⭐</span>' : ''}${esc(e.nome)}</span>
       <span class="score" style="background:${scoreColor(e.score)}">${e.score || 0}</span>
@@ -363,41 +363,125 @@ function kcard(e, st) {
     ${nextBlock}
     <div class="kcard-foot">
       <span class="city-tag">${esc(e.cidade || '—')}</span>
-      ${phone ? `<a class="icon-link wpp" href="${waLink(phone)}" target="_blank" rel="noopener" title="WhatsApp" onclick="event.stopPropagation()">${icoWpp()}</a>` : ''}
-      <button class="btn-icon btn-sm" data-open="${e.id}" title="Ver / editar" onclick="event.stopPropagation()">${icoEdit()}</button>
+      ${phone ? `<a class="icon-link wpp" href="${waLink(phone)}" target="_blank" rel="noopener" title="WhatsApp">${icoWpp()}</a>` : ''}
+      <button class="kcard-edit" data-open="${e.id}" title="Ver / editar">${icoEdit()} Editar</button>
     </div>
   </div>`;
 }
 
-/* Drag & drop */
-let dragId = null;
+/* Drag & drop unificado (mouse + toque) via Pointer Events.
+   No toque: segura ~180ms para "pegar" o card; um toque rápido rola a tela. */
+let drag = null;
+
 function attachDnD() {
-  $$('.kcard').forEach(card => {
-    card.addEventListener('dragstart', () => {
-      dragId = +card.dataset.id;
-      card.classList.add('dragging');
-    });
-    card.addEventListener('dragend', () => card.classList.remove('dragging'));
-  });
-  $$('.kanban-cards').forEach(col => {
-    col.addEventListener('dragover', ev => { ev.preventDefault(); col.classList.add('drag-over'); });
-    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
-    col.addEventListener('drop', ev => {
-      ev.preventDefault();
-      col.classList.remove('drag-over');
-      const novaEtapa = col.dataset.etapa;
-      const e = escolas.find(x => x.id === dragId);
-      if (e && e.etapa !== novaEtapa) {
-        const prev = e.etapa;
-        e.etapa = novaEtapa;
-        saveData();
-        renderAll();
-        cloudSave(e, 'moveu', `${etapaById(prev).label} → ${etapaById(novaEtapa).label}`);
-        toast(`${e.nome} → ${etapaById(novaEtapa).label}`);
-      }
-      dragId = null;
-    });
-  });
+  $$('.kcard').forEach(card => card.addEventListener('pointerdown', onCardPointerDown));
+}
+
+function onCardPointerDown(ev) {
+  if (ev.button === 2) return;
+  // Não arrasta ao tocar em botões/links/áreas interativas (deixa o clique acontecer)
+  if (ev.target.closest('a, button, .kcard-next, [data-open], [data-next]')) return;
+  const card = ev.currentTarget;
+  drag = {
+    id: +card.dataset.id, card, startX: ev.clientX, startY: ev.clientY,
+    isTouch: ev.pointerType === 'touch', active: false, targetCol: null, timer: null,
+  };
+  if (drag.isTouch) {
+    drag.timer = setTimeout(() => { if (drag && !drag.active) startDrag(); }, 180);
+  }
+  window.addEventListener('pointermove', onPointerMove, { passive: false });
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
+}
+
+function startDrag() {
+  if (!drag || drag.active) return;
+  const card = drag.card;
+  const r = card.getBoundingClientRect();
+  drag.active = true;
+  drag.offsetX = drag.startX - r.left;
+  drag.offsetY = drag.startY - r.top;
+  const clone = card.cloneNode(true);
+  clone.className = 'kcard kcard-clone' + (card.classList.contains('has-next') ? ' has-next' : '');
+  clone.style.width = r.width + 'px';
+  clone.style.left = (drag.startX - drag.offsetX) + 'px';
+  clone.style.top = (drag.startY - drag.offsetY) + 'px';
+  clone.style.borderLeftColor = card.style.borderLeftColor;
+  document.body.appendChild(clone);
+  drag.clone = clone;
+  card.classList.add('dragging');
+  document.body.classList.add('is-dragging');
+  if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+}
+
+function onPointerMove(ev) {
+  if (!drag) return;
+  if (!drag.active) {
+    const dx = Math.abs(ev.clientX - drag.startX), dy = Math.abs(ev.clientY - drag.startY);
+    if (drag.isTouch) {
+      if (dx > 8 || dy > 8) { clearTimeout(drag.timer); endDrag(); } // rolagem: cancela
+      return;
+    }
+    if (dx > 4 || dy > 4) startDrag(); else return;
+  }
+  ev.preventDefault();
+  drag.clone.style.left = (ev.clientX - drag.offsetX) + 'px';
+  drag.clone.style.top = (ev.clientY - drag.offsetY) + 'px';
+  const under = document.elementFromPoint(ev.clientX, ev.clientY);
+  const col = under ? under.closest('.kanban-cards') : null;
+  if (col !== drag.targetCol) {
+    if (drag.targetCol) drag.targetCol.classList.remove('drag-over');
+    if (col) col.classList.add('drag-over');
+    drag.targetCol = col;
+  }
+  autoScrollBoard(ev.clientX, ev.clientY);
+}
+
+function autoScrollBoard(x, y) {
+  const board = $('#kanban');
+  if (!board) return;
+  const r = board.getBoundingClientRect();
+  const edge = 56;
+  if (x < r.left + edge) board.scrollLeft -= 14;
+  else if (x > r.right - edge) board.scrollLeft += 14;
+  if (drag.targetCol) {
+    const cr = drag.targetCol.getBoundingClientRect();
+    if (y < cr.top + edge) drag.targetCol.scrollTop -= 12;
+    else if (y > cr.bottom - edge) drag.targetCol.scrollTop += 12;
+  }
+}
+
+function onPointerUp() {
+  if (!drag) return;
+  if (drag.timer) clearTimeout(drag.timer);
+  const moved = drag.active && drag.targetCol;
+  let changed = false;
+  if (moved) {
+    const novaEtapa = drag.targetCol.dataset.etapa;
+    const e = escolas.find(x => x.id === drag.id);
+    if (e && e.etapa !== novaEtapa) {
+      const prev = e.etapa;
+      e.etapa = novaEtapa;
+      saveData();
+      cloudSave(e, 'moveu', `${etapaById(prev).label} → ${etapaById(novaEtapa).label}`);
+      toast(`${e.nome} → ${etapaById(novaEtapa).label}`);
+      changed = true;
+    }
+  }
+  endDrag();
+  if (changed) renderAll();
+}
+
+function endDrag() {
+  if (!drag) return;
+  if (drag.clone) drag.clone.remove();
+  if (drag.card) drag.card.classList.remove('dragging');
+  if (drag.targetCol) drag.targetCol.classList.remove('drag-over');
+  document.body.classList.remove('is-dragging');
+  window.removeEventListener('pointermove', onPointerMove);
+  window.removeEventListener('pointerup', onPointerUp);
+  window.removeEventListener('pointercancel', onPointerUp);
+  drag = null;
 }
 
 /* ---------- Drawer: detalhe / edição ---------- */
