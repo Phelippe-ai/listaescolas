@@ -77,10 +77,17 @@ body {
 
 /* ===== HEADER ===== */
 header {
-  background: #071056 url('../assets/login-bg.jpg') center center / 100% 100% no-repeat;
+  background: #071056 url('../assets/header-bg.jpg') center center / cover no-repeat;
   color: #fff;
   position: relative;
   overflow: hidden;
+}
+/* Mobile/tablet: arte completa, com o laço laranja ocupando a lateral inteira */
+@media (max-width: 1024px) {
+  header {
+    background-image: url('../assets/login-bg.jpg');
+    background-size: 100% 100%;
+  }
 }
 .header-inner {
   max-width: 1360px; margin: 0 auto; padding: 20px 28px 0;
