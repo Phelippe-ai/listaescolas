@@ -140,11 +140,16 @@ function toast(msg) {
 function nextId() {
   return escolas.reduce((m, e) => Math.max(m, e.id || 0), 0) + 1;
 }
-// Gera um id único. Na nuvem usa base de tempo para não colidir entre usuários.
-let _idSeq = 0;
+// Gera um id único e SEGURO (abaixo de Number.MAX_SAFE_INTEGER), monotônico.
+// Base = Date.now()*1000 (~1.75e15) + aleatório 0-999 para separar aparelhos;
+// garante que dois ids seguidos nunca se repitam (importação em lote).
+let _lastNewId = 0;
 function newId() {
   if (!Cloud.active) return nextId();
-  return Date.now() * 100000 + (_idSeq++);
+  let id = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+  if (id <= _lastNewId) id = _lastNewId + 1;
+  _lastNewId = id;
+  return id;
 }
 // Salva uma escola na nuvem (se ativa) e registra a atividade. Não bloqueia a UI.
 function cloudSave(e, acao, detalhe) {
