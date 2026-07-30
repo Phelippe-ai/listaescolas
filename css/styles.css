@@ -82,6 +82,18 @@ header {
   position: relative;
   overflow: hidden;
 }
+/* Fio de laranja correndo por toda a lateral direita (só mobile/tablet;
+   no desktop a própria arte já mostra o laranja). */
+header::after {
+  content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 0;
+  pointer-events: none; z-index: 0;
+  background: linear-gradient(to left, #FF6428 0%, rgba(255, 100, 40, 0.82) 45%, rgba(255, 100, 40, 0) 100%);
+}
+/* Tablet: ~10% de laranja na lateral */
+@media (max-width: 1024px) {
+  header { background-position: left center; }
+  header::after { width: 10%; }
+}
 .header-inner {
   max-width: 1360px; margin: 0 auto; padding: 20px 28px 0;
   position: relative; z-index: 1;
@@ -398,7 +410,7 @@ tbody tr:last-child td { border-bottom: none; }
 .login-screen {
   position: fixed; inset: 0; z-index: 300; display: none;
   align-items: center; justify-content: center; padding: 20px;
-  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--primary-light) 100%);
+  background: #071056 url('../assets/login-bg.jpg') center center / cover no-repeat;
 }
 .login-screen.show { display: flex; }
 .login-card {
@@ -498,7 +510,9 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ===== Mobile ===== */
 @media (max-width: 680px) {
-  header { background-position: 88% center; }
+  header::after { width: 5%; }
+  /* No login mobile, encaixa a largura da arte para os laços laranja aparecerem nas laterais */
+  .login-screen { background-size: 100% auto; }
   .header-inner { padding: 14px 14px 0; }
   .header-top { gap: 10px; }
   .brand-logo-img { height: 30px; }
