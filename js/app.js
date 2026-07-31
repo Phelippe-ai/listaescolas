@@ -1063,17 +1063,30 @@ async function abrirHistorico() {
 }
 
 /* ---------- Boot ---------- */
+function hideSplash() {
+  const s = document.getElementById('splash');
+  if (s && !s.classList.contains('hide')) {
+    s.classList.add('hide');
+    setTimeout(() => { if (s.parentNode) s.remove(); }, 550);
+  }
+}
 async function init() {
-  initTheme();
-  bindEvents();
-  if (await Cloud.init()) {
-    bindCloudEvents();
-    if (Cloud.user) { await enterCloud(); }
-    else { showLogin(); }
-  } else {
-    // Modo local (sem nuvem configurada): comportamento original
-    loadData();
-    renderAll();
+  // Rede é a garantia de saída caso algo trave no carregamento
+  setTimeout(hideSplash, 7000);
+  try {
+    initTheme();
+    bindEvents();
+    if (await Cloud.init()) {
+      bindCloudEvents();
+      if (Cloud.user) { await enterCloud(); }
+      else { showLogin(); }
+    } else {
+      // Modo local (sem nuvem configurada): comportamento original
+      loadData();
+      renderAll();
+    }
+  } finally {
+    hideSplash();
   }
 }
 document.addEventListener('DOMContentLoaded', init);
