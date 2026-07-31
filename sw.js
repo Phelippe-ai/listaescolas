@@ -1,7 +1,7 @@
 /* Service Worker — Fala Tio · Prospecção (PWA)
    Estratégia: network-first (sempre busca a versão mais nova online;
    usa o cache só como reserva quando estiver offline). */
-const CACHE = 'falatio-v4';
+const CACHE = 'falatio-v5';
 const SHELL = [
   './', './index.html', './css/styles.css',
   './js/config.js', './js/cloud.js', './js/data.js', './js/app.js',
