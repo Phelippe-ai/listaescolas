@@ -508,7 +508,8 @@ tbody tr:last-child td { border-bottom: none; }
 .kcard { cursor: grab; touch-action: pan-y; }
 .kcard-clone {
   position: fixed !important; z-index: 500; pointer-events: none; margin: 0 !important;
-  box-shadow: var(--shadow-lg); transform: rotate(1.5deg) scale(1.03); opacity: .96;
+  box-shadow: var(--shadow-lg); opacity: .96;
+  will-change: transform; top: 0; left: 0;
 }
 body.is-dragging { user-select: none; -webkit-user-select: none; }
 body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
