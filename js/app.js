@@ -389,10 +389,12 @@ function onCardPointerDown(ev) {
   const card = ev.currentTarget;
   drag = {
     id: +card.dataset.id, card, startX: ev.clientX, startY: ev.clientY,
+    lastX: ev.clientX, lastY: ev.clientY,
     isTouch: ev.pointerType === 'touch', active: false, targetCol: null, timer: null,
+    boardRect: null, raf: 0,
   };
   if (drag.isTouch) {
-    drag.timer = setTimeout(() => { if (drag && !drag.active) startDrag(); }, 180);
+    drag.timer = setTimeout(() => { if (drag && !drag.active) startDrag(); }, 170);
   }
   window.addEventListener('pointermove', onPointerMove, { passive: false });
   window.addEventListener('pointerup', onPointerUp);
@@ -404,23 +406,26 @@ function startDrag() {
   const card = drag.card;
   const r = card.getBoundingClientRect();
   drag.active = true;
-  drag.offsetX = drag.startX - r.left;
-  drag.offsetY = drag.startY - r.top;
+  const board = $('#kanban');
+  drag.boardRect = board ? board.getBoundingClientRect() : null;   // fixo durante o arraste
   const clone = card.cloneNode(true);
   clone.className = 'kcard kcard-clone' + (card.classList.contains('has-next') ? ' has-next' : '');
   clone.style.width = r.width + 'px';
-  clone.style.left = (drag.startX - drag.offsetX) + 'px';
-  clone.style.top = (drag.startY - drag.offsetY) + 'px';
+  clone.style.left = r.left + 'px';
+  clone.style.top = r.top + 'px';
   clone.style.borderLeftColor = card.style.borderLeftColor;
+  clone.style.transform = 'translate3d(0,0,0) rotate(2deg) scale(1.03)';
   document.body.appendChild(clone);
   drag.clone = clone;
   card.classList.add('dragging');
   document.body.classList.add('is-dragging');
-  if (navigator.vibrate) { try { navigator.vibrate(12); } catch (e) {} }
+  if (navigator.vibrate) { try { navigator.vibrate(10); } catch (e) {} }
+  drag.raf = requestAnimationFrame(dragLoop);   // trabalho pesado só 1x por quadro
 }
 
 function onPointerMove(ev) {
   if (!drag) return;
+  drag.lastX = ev.clientX; drag.lastY = ev.clientY;   // barato: só guarda a posição
   if (!drag.active) {
     const dx = Math.abs(ev.clientX - drag.startX), dy = Math.abs(ev.clientY - drag.startY);
     if (drag.isTouch) {
@@ -429,31 +434,31 @@ function onPointerMove(ev) {
     }
     if (dx > 4 || dy > 4) startDrag(); else return;
   }
-  ev.preventDefault();
-  drag.clone.style.left = (ev.clientX - drag.offsetX) + 'px';
-  drag.clone.style.top = (ev.clientY - drag.offsetY) + 'px';
-  const under = document.elementFromPoint(ev.clientX, ev.clientY);
+  ev.preventDefault();   // impede a rolagem da página durante o arraste
+}
+
+// Loop de animação (~60fps): roda apenas enquanto o arraste está ativo.
+function dragLoop() {
+  if (!drag || !drag.active) return;
+  const x = drag.lastX, y = drag.lastY;
+  // Move o clone via transform (composição por GPU — não recalcula layout)
+  drag.clone.style.transform =
+    `translate3d(${x - drag.startX}px, ${y - drag.startY}px, 0) rotate(2deg) scale(1.03)`;
+  // Detecta a coluna sob o dedo (1x por quadro)
+  const under = document.elementFromPoint(x, y);
   const col = under ? under.closest('.kanban-cards') : null;
   if (col !== drag.targetCol) {
     if (drag.targetCol) drag.targetCol.classList.remove('drag-over');
     if (col) col.classList.add('drag-over');
     drag.targetCol = col;
   }
-  autoScrollBoard(ev.clientX, ev.clientY);
-}
-
-function autoScrollBoard(x, y) {
-  const board = $('#kanban');
-  if (!board) return;
-  const r = board.getBoundingClientRect();
-  const edge = 56;
-  if (x < r.left + edge) board.scrollLeft -= 14;
-  else if (x > r.right - edge) board.scrollLeft += 14;
-  if (drag.targetCol) {
-    const cr = drag.targetCol.getBoundingClientRect();
-    if (y < cr.top + edge) drag.targetCol.scrollTop -= 12;
-    else if (y > cr.bottom - edge) drag.targetCol.scrollTop += 12;
+  // Auto-scroll horizontal do quadro perto das bordas (contínuo)
+  const b = drag.boardRect, board = $('#kanban'), edge = 60;
+  if (b && board) {
+    if (x < b.left + edge) board.scrollLeft -= 16;
+    else if (x > b.right - edge) board.scrollLeft += 16;
   }
+  drag.raf = requestAnimationFrame(dragLoop);
 }
 
 function onPointerUp() {
@@ -479,6 +484,7 @@ function onPointerUp() {
 
 function endDrag() {
   if (!drag) return;
+  if (drag.raf) cancelAnimationFrame(drag.raf);
   if (drag.clone) drag.clone.remove();
   if (drag.card) drag.card.classList.remove('dragging');
   if (drag.targetCol) drag.targetCol.classList.remove('drag-over');
