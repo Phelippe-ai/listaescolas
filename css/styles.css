@@ -570,3 +570,47 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   /* Tabela: rolagem horizontal mais suave */
   .table-wrap { -webkit-overflow-scrolling: touch; }
 }
+
+/* ==========================================================================
+   Acabamento inspirado nas diretrizes de design da Apple (Emil Kowalski):
+   resposta no toque, molas em vez de duração fixa, tracking por tamanho e
+   respeito a "reduzir movimento".
+   ========================================================================== */
+:root {
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);   /* mola suave (painéis/diálogos) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);      /* saída natural */
+}
+* { -webkit-tap-highlight-color: transparent; }
+
+/* (5) Tracking por tamanho: títulos grandes mais "fechados" */
+.brand h1, .drawer-head h2, .modal-card h2, .login-card h2,
+.stat .num, .score-badge, .empty-state .big { letter-spacing: -0.02em; }
+.brand h1, .drawer-head h2, .modal-card h2, .login-card h2 { line-height: 1.1; }
+
+/* (1) Resposta imediata ao toque — feedback no toque, não na soltura */
+.btn, .btn-icon, .kcard-edit, .icon-link, nav.tabs button, .chk-prio, .kcard, .stat {
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease,
+              box-shadow .15s ease, transform .11s var(--ease-out);
+}
+.btn:active, .chk-prio:active { transform: scale(0.96); }
+.btn-icon:active, .kcard-edit:active, .icon-link:active { transform: scale(0.92); }
+nav.tabs button:active { transform: scale(0.97); }
+.kcard:active:not(.dragging) { transform: scale(0.98); }
+/* o clone do arraste é posicionado a cada quadro: nunca pode ter transição */
+.kcard-clone { transition: none !important; }
+
+/* (3) Molas em vez de duração fixa — gaveta, diálogo e transições de view */
+.drawer { transition: transform .42s var(--ease-spring); }
+.modal-card { transition: opacity .22s var(--ease-out), transform .34s var(--ease-spring); }
+.overlay { transition: opacity .3s var(--ease-out); }
+.view.active { animation: fade .28s var(--ease-out); }
+
+/* Acessibilidade: respeitar "reduzir movimento" nas configurações do sistema */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
